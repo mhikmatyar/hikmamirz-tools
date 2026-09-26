@@ -4,7 +4,10 @@ Kumpulan tools yang berjalan langsung di browser. Tidak perlu build, dan file ti
 
 ## Tools
 
-- **Image to WebP**: ubah JPG, PNG, GIF, BMP, AVIF, atau SVG ke WebP. Pilih tingkat kompresi (preset atau kualitas 1–100) dan batas ukuran. Proses massal tanpa batas jumlah, lalu download per file atau sekaligus dalam ZIP.
+- **Image to WebP**: ubah JPG, PNG, GIF, BMP, AVIF, atau SVG ke WebP. Atur kualitas (1–100) dan batas ukuran.
+- **Resize Image**: kecilkan resolusi dengan rasio terkunci, berdasarkan persentase, lebar, tinggi, atau sisi terpanjang. Format hasil bisa sama seperti asli, JPG, PNG, atau WebP.
+
+Keduanya memproses banyak file sekaligus tanpa batas jumlah, lalu hasilnya bisa di-download per file atau dalam satu ZIP.
 
 ## Menjalankan
 
@@ -23,3 +26,5 @@ lalu buka http://localhost:5173.
 2. Tambahkan `<script src="js/tools/<nama-tool>.js"></script>` di `index.html`, sebelum `js/app.js`.
 
 Tool akan otomatis muncul di sidebar dan bisa dibuka lewat `#/<id>`.
+
+Untuk tool yang memproses banyak gambar, pakai `HTImg.mountBatch()` dari `js/lib/image-batch.js`. Modul ini sudah menangani dropzone, antrean, daftar file, dan ZIP, jadi tool cukup menyediakan panel pengaturan dan fungsi `process()`. Lihat `js/tools/image-resizer.js` sebagai contoh.
