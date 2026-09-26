@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hikmamirz Tools</title>
+  <meta name="description" content="Kumpulan tools yang berjalan langsung di browser.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <button class="icon-btn" id="sidebar-toggle" aria-label="Buka menu" aria-controls="sidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <span class="brand-name">Hikmamirz Tools</span>
+    </header>
+
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#/">
+        <span class="brand-mark">H</span>
+        <span class="brand-name">Hikmamirz Tools</span>
+      </a>
+      <nav class="nav" aria-label="Daftar tools">
+        <p class="nav-label">Tools</p>
+        <ul id="tool-nav"></ul>
+      </nav>
+      <p class="sidebar-foot">Semua proses berjalan di browser kamu. File tidak di-upload ke mana pun.</p>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <main class="main" id="view"></main>
+  </div>
+
+  <script src="js/lib/zip.js"></script>
+  <script src="js/registry.js"></script>
+  <script src="js/tools/webp-converter.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
