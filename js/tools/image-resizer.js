@@ -133,6 +133,16 @@
         };
       },
 
+      describe(o) {
+        const size =
+          o.mode === 'percent' ? `${o.value}%` :
+          o.mode === 'width' ? `Lebar ${o.value} px` :
+          o.mode === 'height' ? `Tinggi ${o.value} px` :
+          `Maks ${o.value} px`;
+        const fmt = FORMATS.find((f) => f.value === o.format).label;
+        return `${size} · ${o.format === 'original' ? 'Format asli' : fmt}`;
+      },
+
       outputName: (file, r) => `${HTUtil.baseName(file.name)}-${r.width}x${r.height}.${EXT[r.blob.type]}`,
     });
   }

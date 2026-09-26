@@ -8,6 +8,8 @@
  *     getOptions(),               // opsi saat ini (harus bisa di-JSON-kan)
  *     encode(file, opts),         // -> { mime, quality, background, resize: { mode, value } }
  *     outputName(file, result),
+ *     describe(opts),             // opsional: ringkasan pengaturan per gambar
+ *     selectable,                 // opsional: checkbox per gambar untuk pengaturan berbeda
  *     zipPrefix, warning,
  *   })
  */
@@ -125,91 +127,141 @@ window.HTImg = (function () {
   // ---------- UI ----------
   function mountBatch(root, tool) {
     const state = { items: [], active: 0, nextId: 1 };
+    const selectable = !!tool.selectable;
+    const keyOf = (opts) => JSON.stringify(opts);
 
     root.innerHTML = `
       <div class="stack">
         ${tool.warning ? `<div class="notice notice-warn">${tool.warning}</div>` : ''}
 
         ${HTUtil.block({
-          icon: 'sliders',
-          title: 'Pengaturan',
-          actions: `<button class="btn btn-primary btn-sm" data-ref="reconvert" hidden>${icon('retry', 16)} Terapkan ke semua</button>`,
-          body: `<div class="fields">${tool.settingsHtml}</div>`,
-        })}
-
-        ${HTUtil.block({
           icon: 'upload',
           title: 'Upload',
-          body: HTUtil.dropzone({
-            accept: 'image/*,.svg,.avif',
-            title: 'Tarik gambar ke sini atau pilih file',
-            sub: 'Bisa juga tempel dengan Ctrl+V. Bebas berapa pun jumlah dan ukurannya.',
-          }),
+          actions: `
+            <span class="action-group" data-ref="fileActions" hidden>
+              <button class="btn btn-ghost btn-sm" data-ref="clear">${icon('trash', 16)} Hapus semua</button>
+              <button class="btn btn-primary btn-sm" data-ref="zip" disabled>${icon('download', 16)} Download ZIP</button>
+            </span>`,
+          body: `
+            ${HTUtil.dropzone({
+              accept: 'image/*,.svg,.avif',
+              title: 'Tarik gambar ke sini atau pilih file',
+              sub: 'Bisa juga tempel dengan Ctrl+V. Bebas berapa pun jumlah dan ukurannya.',
+            })}
+            <div class="files" data-ref="files" hidden>
+              <div class="stats">
+                <div class="stat"><span class="stat-label">Gambar</span><span class="stat-val" data-ref="sCount">0</span></div>
+                <div class="stat"><span class="stat-label">Ukuran awal</span><span class="stat-val" data-ref="sBefore">0</span></div>
+                <div class="stat"><span class="stat-label">Ukuran hasil</span><span class="stat-val" data-ref="sAfter">0</span></div>
+                <div class="stat"><span class="stat-label">Hemat</span><span class="stat-val" data-ref="sSaved">—</span></div>
+              </div>
+              ${
+                selectable
+                  ? `<div class="list-toolbar">
+                      <label class="check"><input type="checkbox" data-ref="selectAll"><span>Pilih semua</span></label>
+                      <span class="list-hint" data-ref="selHint">Centang gambar untuk memberi pengaturan yang berbeda.</span>
+                    </div>`
+                  : ''
+              }
+              <ul class="file-list" data-ref="list"></ul>
+            </div>`,
         })}
 
         ${HTUtil.block({
-          icon: 'layers',
-          title: 'File',
-          ref: 'filesBlock',
-          hidden: true,
+          icon: 'sliders',
+          title: 'Pengaturan',
           actions: `
-            <button class="btn btn-ghost btn-sm" data-ref="clear">${icon('trash', 16)} Hapus semua</button>
-            <button class="btn btn-primary btn-sm" data-ref="zip" disabled>${icon('download', 16)} Download ZIP</button>`,
-          body: `
-            <div class="stats">
-              <div class="stat"><span class="stat-label">Gambar</span><span class="stat-val" data-ref="sCount">0</span></div>
-              <div class="stat"><span class="stat-label">Ukuran awal</span><span class="stat-val" data-ref="sBefore">0</span></div>
-              <div class="stat"><span class="stat-label">Ukuran hasil</span><span class="stat-val" data-ref="sAfter">0</span></div>
-              <div class="stat"><span class="stat-label">Hemat</span><span class="stat-val" data-ref="sSaved">—</span></div>
-            </div>
-            <ul class="file-list" data-ref="list"></ul>`,
+            <span class="scope" data-ref="scope"></span>
+            <button class="btn btn-primary btn-sm" data-ref="apply" hidden>${icon('retry', 16)} <span data-ref="applyLabel">Terapkan ke semua</span></button>`,
+          body: `<div class="fields">${tool.settingsHtml}</div>`,
         })}
       </div>`;
 
     const $ = {};
     root.querySelectorAll('[data-ref]').forEach((el) => ($[el.dataset.ref] = el));
 
-    const optionsKey = () => JSON.stringify(tool.getOptions());
+    // ---------- pengaturan & pilihan ----------
+    // Tiap gambar menyimpan pengaturannya sendiri (item.opts). Pengaturan di panel dipakai untuk
+    // upload berikutnya, dan diterapkan ke gambar yang dicentang (atau semua kalau tidak ada yang dicentang).
+    const checkedItems = () => state.items.filter((it) => it.checked);
+    const targets = () => {
+      const checked = checkedItems();
+      return checked.length ? checked : state.items;
+    };
 
     function settingsChanged() {
-      const key = optionsKey();
-      $.reconvert.hidden = !state.items.some((it) => it.status === 'done' && it.optionsKey !== key);
+      const key = keyOf(tool.getOptions());
+      const checked = checkedItems().length;
+      const list = targets();
+      $.apply.hidden = !list.some((it) => keyOf(it.opts) !== key);
+      $.applyLabel.textContent = checked ? `Terapkan ke ${checked} gambar dipilih` : 'Terapkan ke semua';
+      $.scope.textContent = !state.items.length
+        ? 'Berlaku untuk gambar yang di-upload'
+        : checked
+          ? `Untuk ${checked} gambar dipilih`
+          : 'Untuk semua gambar';
+      if (selectable) {
+        $.selectAll.checked = state.items.length > 0 && checked === state.items.length;
+        $.selectAll.indeterminate = checked > 0 && checked < state.items.length;
+        $.selHint.textContent = checked
+          ? `${checked} dari ${state.items.length} dipilih. Ubah pengaturan di bawah lalu klik Terapkan.`
+          : 'Centang gambar untuk memberi pengaturan yang berbeda.';
+      }
     }
     tool.bindSettings($, settingsChanged);
 
-    $.reconvert.addEventListener('click', () => {
-      state.items.forEach((it) => {
-        if (it.status === 'done' || it.status === 'error') setPending(it);
+    $.apply.addEventListener('click', () => {
+      const opts = tool.getOptions();
+      targets().forEach((it) => {
+        it.opts = opts;
+        setPending(it);
       });
-      $.reconvert.hidden = true;
+      settingsChanged();
       pump();
     });
+
+    if (selectable) {
+      $.selectAll.addEventListener('change', () => {
+        const on = $.selectAll.checked;
+        state.items.forEach((it) => {
+          it.checked = on;
+          it.el.classList.toggle('is-checked', on);
+          const box = it.el.querySelector('.file-check input');
+          if (box) box.checked = on;
+        });
+        settingsChanged();
+      });
+    }
 
     // ---------- input file ----------
     function addFiles(list) {
       const files = list.filter((f) => f.type.startsWith('image/') || IMAGE_EXT.test(f.name));
       if (!files.length) return;
+      const opts = tool.getOptions();
       const frag = document.createDocumentFragment();
       for (const file of files) {
         const item = {
           id: state.nextId++,
           file,
+          opts,
+          checked: false,
+          token: 0,
           status: 'pending',
           result: null,
           error: null,
           outUrl: null,
           thumbUrl: null,
           outName: null,
-          optionsKey: null,
           el: document.createElement('li'),
         };
-        item.el.className = 'file';
+        item.el.className = 'file' + (selectable ? ' is-selectable' : '');
         state.items.push(item);
         frag.appendChild(item.el);
         renderItem(item);
       }
       $.list.appendChild(frag);
       renderSummary();
+      settingsChanged();
       pump();
     }
 
@@ -230,25 +282,29 @@ window.HTImg = (function () {
     }
 
     async function run(item) {
-      const opts = tool.getOptions();
+      const token = item.token;
+      const opts = item.opts;
       item.status = 'working';
       renderItem(item);
+      let res;
+      let error = null;
       try {
-        const res = await processImage(item.file, tool.encode(item.file, opts));
-        if (item.status !== 'working') return; // dihapus saat diproses
+        res = await processImage(item.file, tool.encode(item.file, opts));
+      } catch (err) {
+        error = err?.message || 'Gagal memproses gambar.';
+      }
+      if (item.token !== token || item.status === 'removed') return; // diproses ulang atau dihapus di tengah jalan
+      if (error) {
+        item.status = 'error';
+        item.error = error;
+      } else {
         item.result = res;
         item.outUrl = URL.createObjectURL(res.blob);
         item.thumbUrl = res.thumb ? URL.createObjectURL(res.thumb) : item.outUrl;
         item.outName = tool.outputName(item.file, res);
-        item.optionsKey = JSON.stringify(opts);
         item.status = 'done';
-      } catch (err) {
-        if (item.status !== 'working') return;
-        item.status = 'error';
-        item.error = err?.message || 'Gagal memproses gambar.';
       }
       renderItem(item);
-      settingsChanged();
     }
 
     function revoke(item) {
@@ -258,6 +314,7 @@ window.HTImg = (function () {
     }
 
     function setPending(item) {
+      item.token++;
       revoke(item);
       item.result = null;
       item.error = null;
@@ -266,22 +323,39 @@ window.HTImg = (function () {
     }
 
     function removeItem(item) {
+      item.token++;
       item.status = 'removed';
       revoke(item);
       item.el.remove();
       state.items = state.items.filter((it) => it !== item);
-      renderSummary();
-      settingsChanged();
     }
 
-    $.clear.addEventListener('click', () => [...state.items].forEach(removeItem));
+    $.clear.addEventListener('click', () => {
+      [...state.items].forEach(removeItem);
+      renderSummary();
+      settingsChanged();
+    });
+
+    $.list.addEventListener('change', (e) => {
+      const box = e.target.closest('.file-check input');
+      if (!box) return;
+      const item = state.items.find((it) => it.id === +box.closest('.file').dataset.id);
+      if (!item) return;
+      item.checked = box.checked;
+      item.el.classList.toggle('is-checked', box.checked);
+      settingsChanged();
+    });
 
     $.list.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
       const item = state.items.find((it) => it.id === +btn.closest('.file').dataset.id);
       if (!item) return;
-      if (btn.dataset.action === 'remove') removeItem(item);
+      if (btn.dataset.action === 'remove') {
+        removeItem(item);
+        renderSummary();
+        settingsChanged();
+      }
       if (btn.dataset.action === 'retry') {
         setPending(item);
         pump();
@@ -314,6 +388,7 @@ window.HTImg = (function () {
       item.el.dataset.id = item.id;
       item.el.dataset.status = item.status;
 
+      const optsLabel = tool.describe ? `<span class="opts-tag">${escapeHtml(tool.describe(item.opts))}</span>` : '';
       let meta = `<span>${formatBytes(file.size)}</span>`;
       let badge = '';
       let actions = `<button class="icon-btn" data-action="remove" aria-label="Hapus ${escapeHtml(file.name)}" title="Hapus">${icon('x', 18)}</button>`;
@@ -345,12 +420,17 @@ window.HTImg = (function () {
       const thumb = item.thumbUrl
         ? `<a class="thumb" href="${item.outUrl}" target="_blank" rel="noopener" title="Lihat hasil"><img src="${item.thumbUrl}" alt="" decoding="async"></a>`
         : `<span class="thumb thumb-empty" aria-hidden="true">${ext}</span>`;
+      const check = selectable
+        ? `<label class="file-check"><input type="checkbox"${item.checked ? ' checked' : ''} aria-label="Pilih ${escapeHtml(file.name)}"></label>`
+        : '';
 
+      item.el.classList.toggle('is-checked', item.checked);
       item.el.innerHTML = `
+        ${check}
         ${thumb}
         <div class="file-info">
           <div class="file-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
-          <div class="file-meta">${meta}</div>
+          <div class="file-meta">${meta}${optsLabel}</div>
         </div>
         <div class="file-badge">${badge}</div>
         <div class="file-actions">${actions}</div>`;
@@ -358,7 +438,7 @@ window.HTImg = (function () {
 
     function renderSummary() {
       const items = state.items;
-      $.filesBlock.hidden = items.length === 0;
+      $.files.hidden = $.fileActions.hidden = items.length === 0;
       let before = 0;
       let after = 0;
       let done = 0;
@@ -377,6 +457,8 @@ window.HTImg = (function () {
       $.sSaved.textContent = before ? `${saved >= 0 ? '' : '−'}${formatBytes(Math.abs(saved))} (${Math.round((saved / before) * 100)}%)` : '—';
       $.zip.disabled = done === 0 || pending > 0;
     }
+
+    settingsChanged();
 
     return function cleanup() {
       unbindInput();

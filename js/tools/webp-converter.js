@@ -16,6 +16,7 @@
     return HTImg.mountBatch(root, {
       warning: HTImg.canEncode('image/webp') ? '' : 'Browser ini tidak bisa membuat file WebP. Buka tool ini di Chrome, Edge, atau Firefox.',
       zipPrefix: 'webp',
+      selectable: true,
       settingsHtml: `
         <div class="fieldbox">
           <div class="fieldbox-head">
@@ -41,6 +42,7 @@
             <span class="suffix">px</span>
           </div>
           <p class="help">Batas sisi terpanjang. Gambar yang lebih kecil tidak diperbesar. Metadata EXIF seperti lokasi GPS otomatis dihapus.</p>
+          <p class="help">Butuh resolusi berbeda? Centang gambar di atas, atur di sini, lalu klik Terapkan.</p>
         </div>`,
 
       bindSettings($, changed) {
@@ -71,6 +73,8 @@
         quality,
         resize: { mode: 'long', value: maxSide },
       }),
+
+      describe: ({ quality, maxSide }) => `Kualitas ${quality} · ${maxSide > 0 ? `Maks ${maxSide} px` : 'Ukuran asli'}`,
 
       outputName: (file) => HTUtil.baseName(file.name) + '.webp',
     });

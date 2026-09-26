@@ -352,6 +352,30 @@
     root.innerHTML = `
       <div class="stack">
         ${HTUtil.block({
+          icon: 'upload',
+          title: 'Upload',
+          actions: `
+            <span class="action-group" data-ref="fileActions" hidden>
+              <button class="btn btn-ghost btn-sm" data-ref="clear">${icon('trash', 16)} Hapus semua</button>
+              <button class="btn btn-primary btn-sm" data-ref="zip" disabled>${icon('download', 16)} Download ZIP</button>
+            </span>`,
+          body: `
+            ${HTUtil.dropzone({
+              accept: '.docx,.pdf,.html,.htm,.txt,.md,.markdown,.csv,.tsv',
+              title: 'Tarik dokumen ke sini atau pilih file',
+              sub: 'DOCX, PDF, HTML, CSV, TSV, dan TXT. Bebas berapa pun jumlahnya.',
+            })}
+            <div class="files" data-ref="summary" hidden>
+              <div class="stats">
+                <div class="stat"><span class="stat-label">Dokumen</span><span class="stat-val" data-ref="sCount">0</span></div>
+                <div class="stat"><span class="stat-label">Selesai</span><span class="stat-val" data-ref="sDone">0</span></div>
+                <div class="stat"><span class="stat-label">Gagal</span><span class="stat-val" data-ref="sFailed">0</span></div>
+              </div>
+              <ul class="file-list" data-ref="list"></ul>
+            </div>`,
+        })}
+
+        ${HTUtil.block({
           icon: 'sliders',
           title: 'Pengaturan',
           actions: `<button class="btn btn-primary btn-sm" data-ref="reconvert" hidden>${icon('retry', 16)} Terapkan ke semua</button>`,
@@ -376,33 +400,6 @@
                 <p class="help">PDF hasil scan belum bisa dibaca (belum ada OCR). Tabel di PDF keluar sebagai teks biasa.</p>
               </div>
             </div>`,
-        })}
-
-        ${HTUtil.block({
-          icon: 'upload',
-          title: 'Upload',
-          body: HTUtil.dropzone({
-            accept: '.docx,.pdf,.html,.htm,.txt,.md,.markdown,.csv,.tsv',
-            title: 'Tarik dokumen ke sini atau pilih file',
-            sub: 'DOCX, PDF, HTML, CSV, TSV, dan TXT. Bebas berapa pun jumlahnya.',
-          }),
-        })}
-
-        ${HTUtil.block({
-          icon: 'layers',
-          title: 'File',
-          ref: 'summary',
-          hidden: true,
-          actions: `
-            <button class="btn btn-ghost btn-sm" data-ref="clear">${icon('trash', 16)} Hapus semua</button>
-            <button class="btn btn-primary btn-sm" data-ref="zip" disabled>${icon('download', 16)} Download ZIP</button>`,
-          body: `
-            <div class="stats">
-              <div class="stat"><span class="stat-label">Dokumen</span><span class="stat-val" data-ref="sCount">0</span></div>
-              <div class="stat"><span class="stat-label">Selesai</span><span class="stat-val" data-ref="sDone">0</span></div>
-              <div class="stat"><span class="stat-label">Gagal</span><span class="stat-val" data-ref="sFailed">0</span></div>
-            </div>
-            <ul class="file-list" data-ref="list"></ul>`,
         })}
 
         ${HTUtil.block({
@@ -626,7 +623,7 @@
 
     function renderSummary() {
       const items = state.items;
-      $.summary.hidden = items.length === 0;
+      $.summary.hidden = $.fileActions.hidden = items.length === 0;
       const done = items.filter((it) => it.status === 'done').length;
       const pending = items.filter((it) => it.status === 'pending' || it.status === 'working').length;
       $.sCount.textContent = items.length;
