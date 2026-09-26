@@ -7,7 +7,11 @@ Kumpulan tools yang berjalan langsung di browser. Tidak perlu build, dan file ti
 - **Image to WebP**: ubah JPG, PNG, GIF, BMP, AVIF, atau SVG ke WebP. Atur kualitas (1–100) dan batas ukuran.
 - **Resize Image**: kecilkan resolusi dengan rasio terkunci, berdasarkan persentase, lebar, tinggi, atau sisi terpanjang. Format hasil bisa sama seperti asli, JPG, PNG, atau WebP.
 
-Keduanya memproses banyak file sekaligus tanpa batas jumlah, lalu hasilnya bisa di-download per file atau dalam satu ZIP.
+- **Document to Markdown**: ubah DOCX, PDF, HTML, CSV/TSV, dan TXT ke Markdown. Judul, list, tabel, bold/italic, dan link ikut terbawa. Hasil bisa dilihat, disalin, atau di-download.
+
+Semua tool memproses banyak file sekaligus tanpa batas jumlah, lalu hasilnya bisa di-download per file atau dalam satu ZIP.
+
+Document to Markdown memuat library dari CDN jsDelivr saat pertama dipakai (Mammoth untuk DOCX, pdf.js untuk PDF, Turndown untuk HTML), jadi butuh koneksi internet. Isi file tetap diproses di browser dan tidak dikirim ke mana pun.
 
 ## Menjalankan
 

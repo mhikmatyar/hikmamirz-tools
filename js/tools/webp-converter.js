@@ -76,7 +76,7 @@
         });
       },
 
-      outputName: (file) => HTImg.baseName(file.name) + '.webp',
+      outputName: (file) => HTUtil.baseName(file.name) + '.webp',
     });
   }
 

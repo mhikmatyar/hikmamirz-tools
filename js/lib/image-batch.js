@@ -15,24 +15,7 @@
 window.HTImg = (function () {
   const IMAGE_EXT = /\.(jpe?g|png|gif|bmp|webp|avif|svg|ico|tiff?)$/i;
 
-  function formatBytes(n) {
-    if (n < 1024) return n + ' B';
-    const units = ['KB', 'MB', 'GB'];
-    let i = -1;
-    do {
-      n /= 1024;
-      i++;
-    } while (n >= 1024 && i < units.length - 1);
-    return n.toFixed(n < 10 ? 2 : n < 100 ? 1 : 0) + ' ' + units[i];
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  }
-
-  function baseName(name) {
-    return name.replace(/\.[^./\\]+$/, '');
-  }
+  const { formatBytes, escapeHtml } = HTUtil;
 
   const encodeSupport = {};
   function canEncode(mime) {
@@ -130,7 +113,7 @@ window.HTImg = (function () {
           <section class="workspace">
             <label class="dropzone" data-ref="dropzone">
               <input type="file" accept="image/*,.svg,.avif" multiple data-ref="input" hidden>
-              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              ${HTUtil.ICON_UPLOAD}
               <span class="dz-title">Tarik gambar ke sini atau <u>pilih file</u></span>
               <span class="dz-sub">Bisa juga tempel dengan Ctrl+V. Bebas berapa pun jumlahnya.</span>
             </label>
@@ -174,7 +157,7 @@ window.HTImg = (function () {
 
     // ---------- input file ----------
     function addFiles(fileList) {
-      const files = [...fileList].filter((f) => f.type.startsWith('image/') || IMAGE_EXT.test(f.name));
+      const files = fileList.filter((f) => f.type.startsWith('image/') || IMAGE_EXT.test(f.name));
       for (const file of files) {
         const item = {
           id: state.nextId++,
@@ -198,33 +181,7 @@ window.HTImg = (function () {
       processQueue();
     }
 
-    $.input.addEventListener('change', () => {
-      addFiles($.input.files);
-      $.input.value = '';
-    });
-
-    ['dragenter', 'dragover'].forEach((ev) =>
-      $.dropzone.addEventListener(ev, (e) => {
-        e.preventDefault();
-        $.dropzone.classList.add('is-over');
-      })
-    );
-    ['dragleave', 'drop'].forEach((ev) =>
-      $.dropzone.addEventListener(ev, (e) => {
-        e.preventDefault();
-        $.dropzone.classList.remove('is-over');
-      })
-    );
-    $.dropzone.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
-
-    function onPaste(e) {
-      const files = [...(e.clipboardData?.files || [])];
-      if (files.length) {
-        e.preventDefault();
-        addFiles(files);
-      }
-    }
-    document.addEventListener('paste', onPaste);
+    const unbindInput = HTUtil.bindFileInput($.dropzone, $.input, addFiles);
 
     // ---------- antrean ----------
     // Diproses satu per satu supaya memori tetap aman walau ribuan file.
@@ -307,12 +264,7 @@ window.HTImg = (function () {
       $.zip.disabled = true;
       $.zip.textContent = 'Menyiapkan ZIP…';
       try {
-        const zip = await HTZip.create(entries);
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(zip);
-        a.download = `${tool.zipPrefix}-${new Date().toISOString().slice(0, 10)}.zip`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+        HTUtil.downloadBlob(await HTZip.create(entries), `${tool.zipPrefix}-${HTUtil.today()}.zip`);
       } finally {
         $.zip.textContent = label;
         renderSummary();
@@ -327,8 +279,7 @@ window.HTImg = (function () {
 
       let meta = `<span class="mono">${formatBytes(file.size)}</span>`;
       let badge = '';
-      let actions = `<button class="icon-btn" data-action="remove" aria-label="Hapus ${escapeHtml(file.name)}" title="Hapus">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`;
+      let actions = `<button class="icon-btn" data-action="remove" aria-label="Hapus ${escapeHtml(file.name)}" title="Hapus">${HTUtil.ICON_REMOVE}</button>`;
 
       if (item.status === 'pending') {
         badge = '<span class="badge">Menunggu</span>';
@@ -381,7 +332,7 @@ window.HTImg = (function () {
     }
 
     return function cleanup() {
-      document.removeEventListener('paste', onPaste);
+      unbindInput();
       state.items.forEach((it) => {
         it.status = 'removed';
         URL.revokeObjectURL(it.srcUrl);
@@ -390,5 +341,5 @@ window.HTImg = (function () {
     };
   }
 
-  return { formatBytes, escapeHtml, baseName, canEncode, decode, render, fit, mountBatch };
+  return { canEncode, decode, render, fit, mountBatch };
 })();

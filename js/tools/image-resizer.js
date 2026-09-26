@@ -140,7 +140,7 @@
 
       outputName(file, r) {
         const mime = r.blob.type;
-        return `${HTImg.baseName(file.name)}-${r.width}x${r.height}.${EXT[mime]}`;
+        return `${HTUtil.baseName(file.name)}-${r.width}x${r.height}.${EXT[mime]}`;
       },
     });
   }
