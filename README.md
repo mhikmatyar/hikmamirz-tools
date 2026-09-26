@@ -1,6 +1,6 @@
-# Hikmamirz Tools
+# Mirz Labs
 
-Kumpulan tools yang berjalan langsung di browser. Tidak perlu build, dan file tidak di-upload ke server.
+Kumpulan tools yang berjalan langsung di browser (browser-native toolkit). Tidak perlu build, dan file tidak di-upload ke server.
 
 ## Tools
 
