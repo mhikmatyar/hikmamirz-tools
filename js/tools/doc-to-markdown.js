@@ -21,9 +21,6 @@
   };
   const LEGACY = { doc: '.docx', rtf: '.docx', odt: '.docx', xls: '.csv', xlsx: '.csv', ppt: '.pdf', pptx: '.pdf' };
 
-  const ICON =
-    '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M8.5 17v-4l1.75 2 1.75-2v4"/><path d="M15.5 13v4m0 0-1.5-1.5m1.5 1.5 1.5-1.5"/></svg>';
-
   // ---------- HTML → Markdown ----------
   let turndown = null;
   async function getTurndown() {
@@ -340,72 +337,85 @@
   function mount(root) {
     const s = { embedImages: false, detectHeadings: true, pageBreaks: false };
     const state = { items: [], busy: false, nextId: 1, selected: null };
-    const { escapeHtml, formatBytes } = HTUtil;
+    const { escapeHtml, formatBytes, icon } = HTUtil;
+    const COPY_LABEL = `${icon('copy', 16)} Salin`;
+
+    // Buka koneksi ke CDN lebih awal supaya library pembaca dokumen lebih cepat termuat.
+    if (!document.querySelector('link[rel="preconnect"][href="https://cdn.jsdelivr.net"]')) {
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = 'https://cdn.jsdelivr.net';
+      link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+    }
 
     root.innerHTML = `
-      <div class="tool">
-        <header class="tool-head">
-          <h1>Document to Markdown</h1>
-          <p>Ubah dokumen Word (DOCX), PDF, HTML, CSV, dan TXT ke Markdown. Bisa banyak file sekaligus, tanpa batas jumlah atau ukuran.</p>
-        </header>
-
-        <div class="tool-grid">
-          <section class="panel settings" aria-labelledby="settings-title">
-            <h2 id="settings-title" class="panel-title">Pengaturan</h2>
-
-            <div class="field">
-              <label for="images">Gambar di DOCX dan HTML</label>
-              <select id="images" data-ref="images">
-                <option value="skip">Lewati gambar</option>
-                <option value="embed">Sematkan di dalam file (base64)</option>
-              </select>
-              <p class="help">Menyematkan gambar membuat file .md jauh lebih besar.</p>
-            </div>
-
-            <div class="field">
-              <span class="field-title">PDF</span>
-              <label class="check"><input type="checkbox" data-ref="headings" checked> Deteksi judul dari ukuran huruf</label>
-              <label class="check"><input type="checkbox" data-ref="pageBreaks"> Beri garis pemisah antar halaman</label>
-              <p class="help">PDF hasil scan (berupa gambar) tidak bisa dibaca karena belum ada OCR. Tabel di PDF dikeluarkan sebagai teks biasa.</p>
-            </div>
-
-            <button class="btn btn-secondary" data-ref="reconvert" hidden>Terapkan ke semua dokumen</button>
-          </section>
-
-          <section class="workspace">
-            <label class="dropzone" data-ref="dropzone">
-              <input type="file" multiple accept=".docx,.pdf,.html,.htm,.txt,.md,.markdown,.csv,.tsv" data-ref="input" hidden>
-              ${HTUtil.ICON_UPLOAD}
-              <span class="dz-title">Tarik dokumen ke sini atau <u>pilih file</u></span>
-              <span class="dz-sub">DOCX, PDF, HTML, CSV, TSV, TXT</span>
-            </label>
-
-            <div class="summary" data-ref="summary" hidden>
-              <div class="stats">
-                <div><span class="stat-label">Dokumen</span><span class="stat-val mono" data-ref="sCount">0</span></div>
-                <div><span class="stat-label">Selesai</span><span class="stat-val mono" data-ref="sDone">0</span></div>
-                <div><span class="stat-label">Gagal</span><span class="stat-val mono" data-ref="sFailed">0</span></div>
-              </div>
-              <div class="summary-actions">
-                <button class="btn btn-ghost" data-ref="clear">Hapus semua</button>
-                <button class="btn btn-primary" data-ref="zip" disabled>Download semua (ZIP)</button>
-              </div>
-            </div>
-
-            <ul class="file-list" data-ref="list"></ul>
-
-            <section class="panel preview" data-ref="preview" hidden aria-label="Hasil Markdown">
-              <div class="preview-head">
-                <span class="preview-name mono" data-ref="previewName"></span>
-                <div class="preview-actions">
-                  <button class="btn btn-ghost btn-sm" data-ref="copy">Salin</button>
-                  <button class="btn btn-secondary btn-sm" data-ref="download">Download .md</button>
+      <div class="stack">
+        ${HTUtil.block({
+          icon: 'sliders',
+          title: 'Pengaturan',
+          actions: `<button class="btn btn-primary btn-sm" data-ref="reconvert" hidden>${icon('retry', 16)} Terapkan ke semua</button>`,
+          body: `
+            <div class="fields">
+              <div class="fieldbox">
+                <label class="fieldbox-label" for="images">Gambar di DOCX dan HTML</label>
+                <div class="control control-select">
+                  ${icon('image', 18)}
+                  <select id="images" data-ref="images">
+                    <option value="skip">Lewati gambar</option>
+                    <option value="embed">Sematkan di dalam file (base64)</option>
+                  </select>
                 </div>
+                <p class="help">Menyematkan gambar membuat file .md jauh lebih besar.</p>
               </div>
-              <textarea class="md-output" data-ref="output" readonly spellcheck="false" aria-label="Isi Markdown"></textarea>
-            </section>
-          </section>
-        </div>
+
+              <div class="fieldbox">
+                <span class="fieldbox-label">PDF</span>
+                <label class="check"><input type="checkbox" data-ref="headings" checked><span>Deteksi judul dari ukuran huruf</span></label>
+                <label class="check"><input type="checkbox" data-ref="pageBreaks"><span>Beri garis pemisah antar halaman</span></label>
+                <p class="help">PDF hasil scan belum bisa dibaca (belum ada OCR). Tabel di PDF keluar sebagai teks biasa.</p>
+              </div>
+            </div>`,
+        })}
+
+        ${HTUtil.block({
+          icon: 'upload',
+          title: 'Upload',
+          body: HTUtil.dropzone({
+            accept: '.docx,.pdf,.html,.htm,.txt,.md,.markdown,.csv,.tsv',
+            title: 'Tarik dokumen ke sini atau pilih file',
+            sub: 'DOCX, PDF, HTML, CSV, TSV, dan TXT. Bebas berapa pun jumlahnya.',
+          }),
+        })}
+
+        ${HTUtil.block({
+          icon: 'layers',
+          title: 'File',
+          ref: 'summary',
+          hidden: true,
+          actions: `
+            <button class="btn btn-ghost btn-sm" data-ref="clear">${icon('trash', 16)} Hapus semua</button>
+            <button class="btn btn-primary btn-sm" data-ref="zip" disabled>${icon('download', 16)} Download ZIP</button>`,
+          body: `
+            <div class="stats">
+              <div class="stat"><span class="stat-label">Dokumen</span><span class="stat-val" data-ref="sCount">0</span></div>
+              <div class="stat"><span class="stat-label">Selesai</span><span class="stat-val" data-ref="sDone">0</span></div>
+              <div class="stat"><span class="stat-label">Gagal</span><span class="stat-val" data-ref="sFailed">0</span></div>
+            </div>
+            <ul class="file-list" data-ref="list"></ul>`,
+        })}
+
+        ${HTUtil.block({
+          icon: 'eye',
+          title: 'Pratinjau',
+          ref: 'preview',
+          hidden: true,
+          actions: `
+            <span class="preview-name" data-ref="previewName"></span>
+            <button class="btn btn-ghost btn-sm" data-ref="copy">${COPY_LABEL}</button>
+            <button class="btn btn-secondary btn-sm" data-ref="download">${icon('download', 16)} Download .md</button>`,
+          body: '<textarea class="md-output" data-ref="output" readonly spellcheck="false" aria-label="Isi Markdown"></textarea>',
+        })}
       </div>`;
 
     const $ = {};
@@ -543,8 +553,8 @@
         $.output.select();
         document.execCommand('copy');
       }
-      $.copy.textContent = 'Tersalin';
-      setTimeout(() => ($.copy.textContent = 'Salin'), 1500);
+      $.copy.innerHTML = `${icon('check', 16)} Tersalin`;
+      setTimeout(() => ($.copy.innerHTML = COPY_LABEL), 1500);
     });
 
     $.download.addEventListener('click', () => state.selected && HTUtil.downloadBlob(mdBlob(state.selected), mdName(state.selected)));
@@ -564,7 +574,7 @@
       });
       $.zip.disabled = true;
       try {
-        HTUtil.downloadBlob(await HTZip.create(entries), `markdown-${HTUtil.today()}.zip`);
+        HTUtil.downloadBlob(await HTUtil.makeZip(entries), `markdown-${HTUtil.today()}.zip`);
       } finally {
         renderSummary();
       }
@@ -577,25 +587,30 @@
       item.el.dataset.status = item.status;
       item.el.classList.toggle('is-selected', state.selected === item);
 
-      let meta = `<span class="mono">${formatBytes(file.size)}</span>`;
+      let meta = `<span>${formatBytes(file.size)}</span>`;
       let badge = '';
-      let actions = `<button class="icon-btn" data-action="remove" aria-label="Hapus ${escapeHtml(file.name)}" title="Hapus">${HTUtil.ICON_REMOVE}</button>`;
+      let actions = `<button class="icon-btn" data-action="remove" aria-label="Hapus ${escapeHtml(file.name)}" title="Hapus">${icon('x', 18)}</button>`;
 
       if (item.status === 'pending') badge = '<span class="badge">Menunggu</span>';
       else if (item.status === 'working') badge = '<span class="badge badge-busy"><span class="spinner" aria-hidden="true"></span>Memproses</span>';
       else if (item.status === 'error') {
         badge = '<span class="badge badge-error">Gagal</span>';
         meta += `<span class="err">${escapeHtml(item.error)}</span>`;
-        if (!item.unsupported) actions = `<button class="btn btn-ghost btn-sm" data-action="retry">Coba lagi</button>` + actions;
+        if (!item.unsupported)
+          actions = `<button class="icon-btn" data-action="retry" aria-label="Coba lagi" title="Coba lagi">${icon('retry', 18)}</button>` + actions;
       } else if (item.status === 'done') {
-        const words = (item.md.match(/[\p{L}\p{N}]+/gu) || []).length;
-        const lines = item.md.split('\n').length;
+        // Dihitung sekali saja; teks hasil bisa sangat panjang.
+        item.stats ??= {
+          size: new Blob([item.md]).size,
+          words: (item.md.match(/[\p{L}\p{N}]+/gu) || []).length,
+          lines: item.md.split('\n').length,
+        };
         badge = '<span class="badge badge-good">Selesai</span>';
-        meta = `<span class="mono">${formatBytes(file.size)} → <strong>${formatBytes(new Blob([item.md]).size)}</strong></span>
-          <span class="mono dim">${words.toLocaleString('id-ID')} kata · ${lines.toLocaleString('id-ID')} baris</span>`;
+        meta = `<span>${formatBytes(file.size)} → <strong>${formatBytes(item.stats.size)}</strong></span>
+          <span class="dim">${item.stats.words.toLocaleString('id-ID')} kata · ${item.stats.lines.toLocaleString('id-ID')} baris</span>`;
         actions =
-          `<button class="btn btn-ghost btn-sm" data-action="view">Lihat</button>` +
-          `<button class="btn btn-secondary btn-sm" data-action="download">Download</button>` +
+          `<button class="icon-btn" data-action="view" aria-label="Lihat hasil" title="Lihat">${icon('eye', 18)}</button>` +
+          `<button class="icon-btn" data-action="download" aria-label="Download ${escapeHtml(mdName(item))}" title="Download">${icon('download', 18)}</button>` +
           actions;
       }
 
@@ -626,11 +641,5 @@
     };
   }
 
-  HT.register({
-    id: 'doc-to-markdown',
-    name: 'Document to Markdown',
-    description: 'Konversi DOCX, PDF, HTML, CSV, dan TXT ke Markdown.',
-    icon: ICON,
-    mount,
-  });
+  HT.register('doc-to-markdown', { mount });
 })();

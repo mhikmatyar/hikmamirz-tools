@@ -9,41 +9,39 @@
     { value: -1, label: 'Kustom…' },
   ];
 
-  const ICON =
-    '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="m21 15-4.5-4.5L7 20"/></svg>';
-
   function mount(root) {
     const s = { quality: 80, sizeChoice: 0, customSide: 1600 };
+    const { icon } = HTUtil;
 
     return HTImg.mountBatch(root, {
-      title: 'Image to WebP',
-      intro: 'Ubah JPG, PNG, GIF, BMP, AVIF, atau SVG ke WebP dan kompres ukurannya. Tidak ada batas jumlah atau ukuran file.',
       warning: HTImg.canEncode('image/webp') ? '' : 'Browser ini tidak bisa membuat file WebP. Buka tool ini di Chrome, Edge, atau Firefox.',
       zipPrefix: 'webp',
       settingsHtml: `
-        <div class="field">
-          <div class="field-row">
+        <div class="fieldbox">
+          <div class="fieldbox-head">
             <label for="quality">Kualitas</label>
-            <output data-ref="qualityOut" for="quality" class="mono">${s.quality}</output>
+            <output class="value" data-ref="qualityOut" for="quality">${s.quality}</output>
           </div>
           <input type="range" id="quality" min="1" max="100" step="1" value="${s.quality}" data-ref="quality">
           <div class="range-scale"><span>File lebih kecil</span><span>Kualitas lebih baik</span></div>
           <p class="help">75–85 biasanya pas untuk web: file kecil tanpa penurunan kualitas yang terlihat.</p>
         </div>
 
-        <div class="field">
-          <label for="size">Ukuran gambar</label>
-          <select id="size" data-ref="size">
-            ${SIZES.map((o) => `<option value="${o.value}">${o.label}</option>`).join('')}
-          </select>
-          <div class="custom-size" data-ref="customWrap" hidden>
-            <input type="number" min="16" max="32768" step="1" value="${s.customSide}" data-ref="customSide" aria-label="Sisi terpanjang dalam piksel">
-            <span>px, sisi terpanjang</span>
+        <div class="fieldbox">
+          <label class="fieldbox-label" for="size">Ukuran gambar</label>
+          <div class="control control-select">
+            ${icon('resize', 18)}
+            <select id="size" data-ref="size">
+              ${SIZES.map((o) => `<option value="${o.value}">${o.label}</option>`).join('')}
+            </select>
           </div>
-          <p class="help">Gambar yang lebih kecil dari batas ini tidak diperbesar.</p>
-        </div>
-
-        <p class="help">Metadata EXIF, seperti lokasi GPS dan info kamera, otomatis dihapus dari hasil.</p>`,
+          <div class="control" data-ref="customWrap" hidden>
+            ${icon('resize', 18)}
+            <input type="number" min="16" max="32768" step="1" value="${s.customSide}" data-ref="customSide" aria-label="Sisi terpanjang dalam piksel">
+            <span class="suffix">px</span>
+          </div>
+          <p class="help">Batas sisi terpanjang. Gambar yang lebih kecil tidak diperbesar. Metadata EXIF seperti lokasi GPS otomatis dihapus.</p>
+        </div>`,
 
       bindSettings($, changed) {
         $.quality.addEventListener('input', () => {
@@ -68,23 +66,15 @@
         return { quality: s.quality, maxSide };
       },
 
-      process(file, { quality, maxSide }) {
-        return HTImg.render(file, {
-          mime: 'image/webp',
-          quality,
-          targetSize: (w, h) => HTImg.fit(w, h, maxSide > 0 ? maxSide / Math.max(w, h) : 1),
-        });
-      },
+      encode: (file, { quality, maxSide }) => ({
+        mime: 'image/webp',
+        quality,
+        resize: { mode: 'long', value: maxSide },
+      }),
 
       outputName: (file) => HTUtil.baseName(file.name) + '.webp',
     });
   }
 
-  HT.register({
-    id: 'image-to-webp',
-    name: 'Image to WebP',
-    description: 'Konversi gambar ke WebP dengan pilihan kompresi.',
-    icon: ICON,
-    mount,
-  });
+  HT.register('image-to-webp', { mount });
 })();

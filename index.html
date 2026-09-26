@@ -4,44 +4,76 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hikmamirz Tools</title>
-  <meta name="description" content="Kumpulan tools yang berjalan langsung di browser.">
+  <meta name="description" content="Kumpulan tools yang berjalan langsung di browser. File tidak di-upload ke server.">
+  <meta name="theme-color" content="#f3f3f2">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23141414'/%3E%3Cpath d='M10 9v14M22 9v14M10 16h12' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <script>
+    // Terapkan status sidebar sebelum render pertama supaya tidak berkedip.
+    try { if (localStorage.getItem('ht-collapsed') === '1') document.documentElement.classList.add('sidebar-collapsed'); } catch (e) {}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap"></noscript>
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/lib/util.js" defer></script>
+  <script src="js/registry.js" defer></script>
+  <script src="js/app.js" defer></script>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
       <button class="icon-btn" id="sidebar-toggle" aria-label="Buka menu" aria-controls="sidebar" aria-expanded="false">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
-      <span class="brand-name">Hikmamirz Tools</span>
+      <span class="topbar-brand"><span class="brand-logo brand-logo-sm">H</span> Hikmamirz Tools</span>
     </header>
 
     <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#/">
-        <span class="brand-mark">H</span>
-        <span class="brand-name">Hikmamirz Tools</span>
-      </a>
-      <nav class="nav" aria-label="Daftar tools">
-        <p class="nav-label">Tools</p>
-        <ul id="tool-nav"></ul>
-      </nav>
-      <p class="sidebar-foot">Semua proses berjalan di browser kamu. File tidak di-upload ke mana pun.</p>
+      <div class="brand-card">
+        <a class="brand" href="#/">
+          <span class="brand-logo">H</span>
+          <span class="brand-text">
+            <strong>Hikmamirz Tools</strong>
+            <small>Tools di browser</small>
+          </span>
+        </a>
+        <button class="icon-btn collapse-btn" id="collapse" aria-label="Ciutkan sidebar" title="Ciutkan sidebar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5v14"/><path d="M20 12H9"/><path d="m13 7-5 5 5 5"/></svg>
+        </button>
+      </div>
+
+      <label class="side-search">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="tool-search" placeholder="Cari tool" autocomplete="off" aria-label="Cari tool">
+        <kbd id="search-kbd">Ctrl K</kbd>
+      </label>
+
+      <nav class="nav" id="tool-nav" aria-label="Daftar tools"></nav>
+
+      <p class="sidebar-foot">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span>File diproses di browser kamu dan tidak di-upload ke mana pun.</span>
+      </p>
     </aside>
     <div class="scrim" id="scrim" hidden></div>
 
-    <main class="main" id="view"></main>
+    <main class="main">
+      <div class="page">
+        <header class="page-head">
+          <p class="crumb" id="page-crumb">Tools</p>
+          <div class="page-title-row">
+            <h1 id="page-title">Hikmamirz Tools</h1>
+            <span class="pill">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              Diproses lokal
+            </span>
+          </div>
+          <p class="page-desc" id="page-desc"></p>
+        </header>
+        <div class="view" id="view" tabindex="-1"></div>
+      </div>
+    </main>
   </div>
-
-  <script src="js/lib/util.js"></script>
-  <script src="js/lib/zip.js"></script>
-  <script src="js/lib/image-batch.js"></script>
-  <script src="js/registry.js"></script>
-  <script src="js/tools/webp-converter.js"></script>
-  <script src="js/tools/image-resizer.js"></script>
-  <script src="js/tools/doc-to-markdown.js"></script>
-  <script src="js/app.js"></script>
 </body>
 </html>

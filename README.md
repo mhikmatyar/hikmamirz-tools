@@ -6,7 +6,6 @@ Kumpulan tools yang berjalan langsung di browser. Tidak perlu build, dan file ti
 
 - **Image to WebP**: ubah JPG, PNG, GIF, BMP, AVIF, atau SVG ke WebP. Atur kualitas (1–100) dan batas ukuran.
 - **Resize Image**: kecilkan resolusi dengan rasio terkunci, berdasarkan persentase, lebar, tinggi, atau sisi terpanjang. Format hasil bisa sama seperti asli, JPG, PNG, atau WebP.
-
 - **Document to Markdown**: ubah DOCX, PDF, HTML, CSV/TSV, dan TXT ke Markdown. Judul, list, tabel, bold/italic, dan link ikut terbawa. Hasil bisa dilihat, disalin, atau di-download.
 
 Semua tool memproses banyak file sekaligus tanpa batas jumlah, lalu hasilnya bisa di-download per file atau dalam satu ZIP.
@@ -15,20 +14,30 @@ Document to Markdown memuat library dari CDN jsDelivr saat pertama dipakai (Mamm
 
 ## Menjalankan
 
-Buka `index.html` langsung di browser, atau jalankan server lokal:
-
 ```bash
 node scripts/serve.js
 ```
 
 lalu buka http://localhost:5173.
 
+`index.html` juga bisa dibuka langsung, tapi tanpa server gambar diproses satu per satu karena Web Worker tidak jalan di `file://`.
+
+## Performa
+
+- Halaman awal hanya memuat `util.js`, `registry.js`, dan `app.js`. Kode tiap tool dimuat saat tool dibuka, dan sudah mulai dimuat saat kursor mengarah ke menunya.
+- Gambar diproses paralel di Web Worker (maks. 4 sekaligus, menyesuaikan jumlah core CPU), jadi halaman tetap responsif. Kalau worker tidak tersedia, proses otomatis pindah ke halaman.
+- Daftar file memakai thumbnail kecil (112 px) dan `content-visibility`, jadi ribuan file tetap ringan.
+- `zip.js` dan library dokumen baru dimuat saat dibutuhkan.
+- `sw.js` menyimpan file aplikasi (stale-while-revalidate) dan library CDN (cache-first), jadi kunjungan berikutnya instan dan library tidak diunduh ulang. Service worker tidak aktif di `localhost` supaya tidak mengganggu saat development.
+
 ## Menambah tool baru
 
-1. Buat file `js/tools/<nama-tool>.js` yang memanggil `HT.register({ id, name, description, icon, mount })`.
-   `mount(el)` merender UI tool ke dalam `el` dan boleh mengembalikan fungsi cleanup.
-2. Tambahkan `<script src="js/tools/<nama-tool>.js"></script>` di `index.html`, sebelum `js/app.js`.
+1. Tambahkan metadata tool di `js/registry.js`: `id`, `name`, `group`, `icon` (nama ikon dari `HTUtil.icon`), `description`, dan `scripts` yang perlu dimuat.
+2. Buat `js/tools/<nama-tool>.js` yang memanggil `HT.register('<id>', { mount(el) { ... } })`.
+   `mount` merender isi tool ke dalam `el` dan boleh mengembalikan fungsi cleanup.
 
-Tool akan otomatis muncul di sidebar dan bisa dibuka lewat `#/<id>`.
+Tool otomatis muncul di sidebar dan bisa dibuka lewat `#/<id>`. Judul, breadcrumb, dan deskripsi halaman diambil dari metadata.
 
-Untuk tool yang memproses banyak gambar, pakai `HTImg.mountBatch()` dari `js/lib/image-batch.js`. Modul ini sudah menangani dropzone, antrean, daftar file, dan ZIP, jadi tool cukup menyediakan panel pengaturan dan fungsi `process()`. Lihat `js/tools/image-resizer.js` sebagai contoh.
+Untuk tampilan yang seragam, pakai `HTUtil.block()` (section), `HTUtil.dropzone()`, dan kelas `.fields` / `.fieldbox` / `.control` untuk pengaturan.
+
+Untuk tool yang memproses banyak gambar, pakai `HTImg.mountBatch()` dari `js/lib/image-batch.js`. Modul ini sudah menangani pengaturan, dropzone, antrean paralel, daftar file, dan ZIP. Tool cukup menyediakan field pengaturan dan fungsi `encode()`. Contohnya ada di `js/tools/image-resizer.js`.
