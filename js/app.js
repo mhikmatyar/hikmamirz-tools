@@ -33,7 +33,7 @@
   // ---------- sidebar ----------
   function renderNav() {
     const q = search.value.trim().toLowerCase();
-    const match = (t) => !q || t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q);
+    const match = (t) => !q || [t.name, t.tagline, t.description].some((s) => s.toLowerCase().includes(q));
 
     const html = HT.groups
       .map((group) => {
@@ -49,7 +49,7 @@
               ${tools
                 .map((t) => {
                   const active = current && t.id === current.id;
-                  return `<li><a href="#/${t.id}" class="nav-item${active ? ' is-active' : ''}" data-id="${t.id}" title="${escapeHtml(t.name)}"${
+                  return `<li><a href="#/${t.id}" class="nav-item${active ? ' is-active' : ''}" data-id="${t.id}" title="${escapeHtml(`${t.name} · ${t.tagline}`)}"${
                     active ? ' aria-current="page"' : ''
                   }>${icon(t.icon)}<span class="nav-text">${escapeHtml(t.name)}</span></a></li>`;
                 })
@@ -147,10 +147,10 @@
     cleanup = null;
     current = tool;
 
-    byId('page-crumb').textContent = `Tools / ${tool.group}`;
+    byId('page-crumb').textContent = `${tool.group} / ${tool.tagline}`;
     byId('page-title').textContent = tool.name;
     byId('page-desc').textContent = tool.description;
-    document.title = `${tool.name} · Hikmamirz Tools`;
+    document.title = `${tool.name} · ${tool.tagline} · Hikmamirz Tools`;
     renderNav();
     closeSidebar();
 

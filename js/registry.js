@@ -5,29 +5,33 @@
  * File tool memanggil HT.register('<id>', { mount(el) { ...; return cleanup } }).
  */
 window.HT = {
-  groups: ['Gambar', 'Dokumen'],
+  groups: ['Image Lab', 'Doc Lab'],
 
+  // name: nama produk di sidebar; tagline: fungsi singkatnya (tampil di breadcrumb dan ikut dicari).
   tools: [
     {
       id: 'image-to-webp',
-      name: 'Image to WebP',
-      group: 'Gambar',
+      name: 'PixelPress',
+      tagline: 'Image → WebP',
+      group: 'Image Lab',
       icon: 'image',
       description: 'Ubah JPG, PNG, GIF, BMP, AVIF, atau SVG ke WebP dan kompres ukurannya. Tidak ada batas jumlah atau ukuran file.',
       scripts: ['js/lib/image-core.js', 'js/lib/image-batch.js', 'js/tools/webp-converter.js'],
     },
     {
       id: 'image-resizer',
-      name: 'Resize Image',
-      group: 'Gambar',
+      name: 'ScaleShift',
+      tagline: 'Image Resizer',
+      group: 'Image Lab',
       icon: 'resize',
       description: 'Kecilkan resolusi gambar dengan rasio yang tetap terjaga. Proses massal, tanpa batas jumlah atau ukuran file.',
       scripts: ['js/lib/image-core.js', 'js/lib/image-batch.js', 'js/tools/image-resizer.js'],
     },
     {
       id: 'doc-to-markdown',
-      name: 'Document to Markdown',
-      group: 'Dokumen',
+      name: 'Markflow',
+      tagline: 'Document → Markdown',
+      group: 'Doc Lab',
       icon: 'fileText',
       description: 'Ubah dokumen Word (DOCX), PDF, HTML, CSV, dan TXT ke Markdown. Bisa banyak file sekaligus, tanpa batas jumlah atau ukuran.',
       scripts: ['js/tools/doc-to-markdown.js'],
