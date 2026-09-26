@@ -150,7 +150,7 @@
     byId('page-crumb').textContent = `${tool.group} / ${tool.tagline}`;
     byId('page-title').textContent = tool.name;
     byId('page-desc').textContent = tool.description;
-    document.title = `${tool.name} · ${tool.tagline} · Mirz Labs`;
+    document.title = `${tool.name} · ${tool.tagline} · Kitforge`;
     renderNav();
     closeSidebar();
 

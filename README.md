@@ -1,4 +1,4 @@
-# Mirz Labs
+# Kitforge
 
 Kumpulan tools yang berjalan langsung di browser (browser-native toolkit). Tidak perlu build, dan file tidak di-upload ke server.
 
@@ -46,3 +46,14 @@ Tool otomatis muncul di sidebar dan bisa dibuka lewat `#/<id>`. Judul, breadcrum
 Untuk tampilan yang seragam, pakai `HTUtil.block()` (section), `HTUtil.dropzone()`, dan kelas `.fields` / `.fieldbox` / `.control` untuk pengaturan.
 
 Untuk tool yang memproses banyak gambar, pakai `HTImg.mountBatch()` dari `js/lib/image-batch.js`. Modul ini sudah menangani pengaturan, dropzone, antrean paralel, daftar file, dan ZIP. Tool cukup menyediakan field pengaturan dan fungsi `encode()`. Contohnya ada di `js/tools/image-resizer.js`.
+
+## Deploy ke Vercel
+
+Tidak ada proses build, jadi cukup:
+
+1. Push repo ini ke GitHub.
+2. Di Vercel, pilih **Add New → Project**, lalu import repo ini.
+3. Framework Preset: **Other**. Build Command dan Output Directory dikosongkan.
+4. Klik **Deploy**.
+
+`vercel.json` membuat `sw.js` selalu dicek ulang (supaya update langsung sampai ke pengunjung) dan menambah header keamanan dasar. `.vercelignore` membuat file khusus development tidak ikut ter-deploy.

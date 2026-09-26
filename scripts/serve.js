@@ -36,4 +36,4 @@ http
       res.end(data);
     });
   })
-  .listen(port, () => console.log(`Mirz Labs: http://localhost:${port}`));
+  .listen(port, () => console.log(`Kitforge: http://localhost:${port}`));
