@@ -21,6 +21,7 @@ Semua prompt visual untuk PixVerse, Syntx, atau Flova ditulis **per klip** denga
   Untuk karakter baru, usulkan nama parodinya dulu dan minta pengguna mengonfirmasi. Jangan berganti-ganti antara nama asli dan nama parodi dalam satu proyek.
 - **Karakter:** semuanya ditulis sebagai "Fictional ...", lengkap dengan nomor punggung yang dikunci. Pemain lain cukup "GENERIC ... background only, no recognizable real-player likeness".
 - **Character sheet:** buat sheet (gambar 16:9, 4 pose + 4 ekspresi) untuk karakter yang tampil di lebih dari satu klip atau akan muncul lagi. Karakter yang hanya bersuara tidak perlu sheet. Sheet diunggah sebagai referensi di tiap klip lewat blok CHARACTER REFERENCE.
+- **Telepon/percakapan jarak jauh:** tampilkan sebagai split-screen ala manga (penelepon di panel atas, karakter utama di panel bawah, dua lokasi dengan pencahayaan berbeda, panel yang bicara lebih besar dan terang). Tambahkan blok SPLIT-SCREEN PHONE CALL, dan di negative prompt: both characters in the same room, merged panels, video call screen UI. Kalau AI menggabungkan panel, generate tiap panel terpisah lalu susun di CapCut.
 - **Bola:** kalau bola terlihat, pakai gambar referensi bola yang diunggah.
 - **Teks di layar:** tidak ada teks hasil generate kecuali yang memang diizinkan (scoreboard, nomor punggung). Nama, layar ponsel, dan subtitle ditambahkan di CapCut.
 - **Audio:** tanpa musik latar. Hanya ambience dan SFX.
