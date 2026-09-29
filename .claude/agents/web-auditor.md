@@ -19,3 +19,5 @@ Format laporan (Bahasa Indonesia):
 3. Tiga perbaikan dengan dampak terbesar.
 
 Jangan melaporkan hal yang tidak kamu verifikasi.
+
+Untuk situs NuhaWeb, periksa juga halaman SEO per kota (misalnya /jasa-pembuatan-website-jakarta/). Cari konten yang terlalu mirip antar-kota, internal link, dan data terstruktur LocalBusiness. Profil bisnisnya ada di `.claude/profil/nuhaweb.md`.

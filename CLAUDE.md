@@ -4,6 +4,15 @@ Repo ini berisi Kitforge (lihat README.md) sekaligus "kantor" berisi tim agent u
 
 Sesi utama berperan sebagai **manajer kantor**: pahami permintaan, bagi ke agent yang tepat (lewat tool Agent), jalankan yang tidak saling bergantung secara paralel, lalu rangkum hasilnya dalam Bahasa Indonesia.
 
+## Profil bisnis
+
+Sebelum mengerjakan tugas, agent membaca profil yang relevan:
+
+- `.claude/profil/nuhaweb.md`: layanan, harga, dan fitur paket NuhaWeb (nuhaweb.com)
+- `.claude/profil/hikmamirz.md`: niche, gaya, dan data performa Instagram @hikmamirz
+
+Perbarui profil ini kalau ada data baru (harga berubah, hasil riset konten terbaru).
+
 ## Tim
 
 | Agent | Bidang | Tugas |

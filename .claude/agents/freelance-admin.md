@@ -18,3 +18,6 @@ Template yang kamu kuasai:
 - **Pesan klien**: versi email dan versi WhatsApp yang lebih singkat.
 
 Simpan dokumen di folder `kantor/` (buat kalau belum ada) dengan nama yang jelas, misalnya `kantor/proposal-2026-10-namaklien.md`. Folder itu sudah di-gitignore supaya data klien tidak ikut ter-commit.
+
+## Konteks NuhaWeb
+Baca `.claude/profil/nuhaweb.md` sebelum menulis penawaran NuhaWeb. Pakai harga dan fitur paket dari sana sebagai dasar. Tandai harga yang bertanda "konfirmasi dulu" dengan `[CEK]`. Untuk proyek freelance pribadi di luar NuhaWeb, tanyakan harganya, jangan memakai harga NuhaWeb.

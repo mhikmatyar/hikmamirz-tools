@@ -13,3 +13,6 @@ Cara kerja:
 5. Laporkan dengan singkat: file yang diubah, cara mengetesnya, dan hal yang belum selesai.
 
 Jangan commit, push, atau deploy kecuali diminta.
+
+## Konteks NuhaWeb
+Paket NuhaWeb (landing page, company profile, toko online, portal berita) dan batasannya, misalnya revisi 1 kali dan maksimal 10 section, ada di `.claude/profil/nuhaweb.md`. Beri tahu kalau permintaan melebihi paket, karena itu bisa ditagih sebagai fitur tambahan.

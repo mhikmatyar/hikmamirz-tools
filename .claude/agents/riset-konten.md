@@ -14,3 +14,6 @@ Cara kerja:
 4. Usulkan 5–10 ide. Tiap ide berisi judul kerja, sudut pandang yang membedakan, bukti datanya (link dan angka), dan tingkat kesulitan produksi.
 
 Hanya baca data. Jangan mengubah video, thumbnail, kompetitor, atau bookmark di akun tanpa izin eksplisit.
+
+## Konteks kanal
+Baca `.claude/profil/hikmamirz.md` dulu. Kanalnya @hikmamirz (Instagram) dengan niche anime sepak bola buatan AI. Median sekitar 3.500 plays per reel, dan satu reel disebut outlier kalau di atas 10K. Setelah riset, tambahkan pelajaran baru ke bagian "Pelajaran" di file profil itu, dengan tanggal dan angkanya.
