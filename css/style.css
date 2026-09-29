@@ -1232,6 +1232,65 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   min-width: 0;
 }
 
+.pulse-live {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.pulse-live-text {
+  display: grid;
+  gap: 2px;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.pulse-live-text strong {
+  font-size: 15.5px;
+  font-weight: 500;
+}
+
+.pulse-live-text span {
+  font-size: 13.5px;
+  color: var(--text-2);
+}
+
+.pulse-live-form {
+  display: flex;
+  flex: 1 1 320px;
+  gap: 8px;
+}
+
+.pulse-live-form .control {
+  flex: 1;
+  height: 44px;
+}
+
+.live-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 0 4px var(--good-soft);
+}
+
+.live-dot.is-busy {
+  animation: pulse-blink 1s ease-in-out infinite;
+}
+
+@keyframes pulse-blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
 .pulse-filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));

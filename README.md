@@ -15,7 +15,7 @@ Kumpulan tools yang berjalan langsung di browser (browser-native toolkit). Tidak
 
 **Content Lab**
 
-- **Pulse** (Post Analytics): dashboard performa post dari file ekspor CSV/JSON (Meta Business Suite, TikTok Studio, YouTube Studio, atau spreadsheet sendiri). Menampilkan ringkasan, grafik views per post dengan garis median, post yang menonjol (≥ 2× median), insight hari/jam/durasi terbaik, dan tabel yang bisa diurutkan. Data digabung antar-file dan disimpan di `localStorage` browser, jadi tidak pernah dikirim ke server.
+- **Pulse** (Post Analytics): dashboard performa post dari file ekspor CSV/JSON (Meta Business Suite, TikTok Studio, YouTube Studio, atau spreadsheet sendiri). Menampilkan ringkasan, grafik views per post dengan garis median, post yang menonjol (≥ 2× median), insight hari/jam/durasi terbaik, dan tabel yang bisa diurutkan. Data digabung antar-file dan disimpan di `localStorage` browser. Untuk Instagram, Pulse juga bisa mengambil data live lewat `api/instagram.js` (lihat [Pulse live](#pulse-live-instagram)).
 
 Semua tool memproses banyak file sekaligus tanpa batas jumlah, lalu hasilnya bisa di-download per file atau dalam satu ZIP.
 
@@ -61,3 +61,31 @@ Tidak ada proses build, jadi cukup:
 4. Klik **Deploy**.
 
 `vercel.json` membuat `sw.js` selalu dicek ulang (supaya update langsung sampai ke pengunjung) dan menambah header keamanan dasar. `.vercelignore` membuat file khusus development tidak ikut ter-deploy.
+
+## Pulse live (Instagram)
+
+`api/instagram.js` adalah Vercel Function yang mengambil 30 post terbaru beserta insight-nya (views, reach, likes, komentar, shares, saves) lewat Instagram API with Instagram Login. Pulse memanggilnya tiap 15 menit selama halaman terbuka. Hasilnya di-cache 10 menit di server supaya tetap jauh di bawah batas ±200 panggilan per jam.
+
+### Setup (sekali saja)
+
+1. **Akun Instagram Profesional.** Di Instagram buka Settings → Account type and tools, lalu pilih Creator atau Business. Tidak perlu Facebook Page.
+2. **Buat aplikasi Meta.** Buka [developers.facebook.com/apps](https://developers.facebook.com/apps), klik Create app, lalu pilih use case untuk mengelola konten dan insight Instagram ("Instagram API").
+3. **Buat token.** Di aplikasi itu buka Instagram → API setup with Instagram login.
+   - Pastikan izin `instagram_business_basic` dan `instagram_business_manage_insights` aktif.
+   - Di bagian Generate access tokens, klik Add account, lalu login sebagai akun Instagram Anda. Kalau diminta menjadi *tester*, terima undangannya di Instagram lewat Settings → Website permissions/Apps and websites → Tester invites.
+   - Klik Generate token, lalu salin tokennya. Token ini berlaku 60 hari.
+4. **Isi Environment Variables di Vercel.** Buka Project → Settings → Environment Variables, lalu isi:
+   | Nama | Isi |
+   |---|---|
+   | `IG_ACCESS_TOKEN` | token dari langkah 3 |
+   | `PULSE_KEY` | kunci akses buatan sendiri (seperti password), dipakai untuk membuka data live di Pulse |
+   | `CRON_SECRET` | teks acak panjang, dipakai Vercel Cron untuk memperpanjang token |
+5. **Redeploy** (Deployments → titik tiga → Redeploy) supaya variabel terbaca.
+6. **Sambungkan di Pulse.** Buka Pulse, isi kunci akses dengan `PULSE_KEY`, lalu klik Sambungkan.
+
+### Catatan
+
+- Token diperpanjang otomatis tiap Senin pukul 03.00 UTC oleh Vercel Cron (`vercel.json`). Kalau Pulse menampilkan "Token Instagram kedaluwarsa", buat token baru (langkah 3) lalu perbarui `IG_ACCESS_TOKEN` dan redeploy.
+- Token tidak pernah dikirim ke browser. Tanpa `PULSE_KEY` yang benar, endpoint menolak permintaan. Kunci disimpan di `localStorage` browser yang dipakai untuk menyambungkan, dan klik Putuskan untuk menghapusnya.
+- Durasi video tidak tersedia di API. Kalau pernah diunggah lewat file ekspor, durasinya tetap disimpan.
+- Untuk mencoba secara lokal: `IG_ACCESS_TOKEN=... PULSE_KEY=... node scripts/serve.js`. Server development juga menjalankan `api/*.js`.

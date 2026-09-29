@@ -42,7 +42,7 @@ window.HT = {
       tagline: 'Post Analytics',
       group: 'Content Lab',
       icon: 'chart',
-      description: 'Dashboard performa post Instagram, TikTok, dan YouTube dari file ekspor. Lihat views per post, post yang menonjol, hari dan durasi terbaik. Data disimpan di browser ini saja.',
+      description: 'Dashboard performa post Instagram, TikTok, dan YouTube dari file ekspor atau langsung dari Instagram (live, diperbarui tiap 15 menit). Lihat views per post, post yang menonjol, hari dan durasi terbaik.',
       scripts: ['js/tools/post-analytics.js'],
     },
   ],

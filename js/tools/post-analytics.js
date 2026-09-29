@@ -1,6 +1,8 @@
 (function () {
   const { icon, escapeHtml } = HTUtil;
   const STORE_KEY = 'kf-pulse-posts';
+  const LIVE_KEY = 'kf-pulse-live';
+  const LIVE_EVERY = 15 * 60 * 1000; // data live diperbarui tiap 15 menit selama halaman terbuka
   const DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
   const PLATFORMS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', facebook: 'Facebook', x: 'X', lainnya: 'Lainnya' };
   const OUTLIER = 2; // post dianggap menonjol kalau views-nya >= 2x median
@@ -328,6 +330,42 @@
     host.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik ${posts.length} post, diurutkan dari yang terlama">${grid}${bars}${medLine}${axis}</svg><div class="pulse-tip" hidden></div>`;
   }
 
+  // Post yang sama dikenali dari shortcode Instagram (/p/ dan /reel/ bisa berbeda), atau dari link-nya.
+  function postKey(p) {
+    const ig = /instagram\.com\/(?:[\w.]+\/)?(?:p|reels?|tv)\/([\w-]+)/i.exec(p.url || '');
+    return ig ? 'ig:' + ig[1] : p.url || `${p.date}|${(p.caption || '').slice(0, 40)}`;
+  }
+
+  // Nilai kosong di data baru tidak menimpa data lama (mis. durasi dari file tetap ada setelah update live).
+  function mergePosts(posts, incoming) {
+    const index = new Map(posts.map((p, i) => [postKey(p), i]));
+    let added = 0;
+    let updated = 0;
+    for (const p of incoming) {
+      const k = postKey(p);
+      if (index.has(k)) {
+        const old = posts[index.get(k)];
+        const next = { ...old };
+        for (const [f, v] of Object.entries(p)) if (v != null && v !== '') next[f] = v;
+        posts[index.get(k)] = next;
+        updated++;
+      } else {
+        index.set(k, posts.length);
+        posts.push(p);
+        added++;
+      }
+    }
+    return { added, updated };
+  }
+
+  function ago(iso) {
+    const min = Math.floor((Date.now() - Date.parse(iso)) / 60000);
+    if (min < 1) return 'baru saja';
+    if (min < 60) return `${min} menit lalu`;
+    const h = Math.floor(min / 60);
+    return h < 24 ? `${h} jam lalu` : new Date(iso).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+
   // ---------- tampilan ----------
   HT.register('post-analytics', {
     mount(el) {
@@ -338,6 +376,13 @@
         posts = [];
       }
       const state = { platform: 'all', range: 'all', sort: 'date', dir: -1, log: false };
+      let live = null; // { key, lastAt, account }
+      try {
+        live = JSON.parse(localStorage.getItem(LIVE_KEY));
+      } catch (_) {
+        live = null;
+      }
+      let liveBusy = false;
 
       el.innerHTML = `
         <div class="stack">
@@ -352,6 +397,7 @@
               sub: 'CSV/JSON dari Meta Business Suite, TikTok Studio, YouTube Studio, atau spreadsheet sendiri',
             })}
             <p class="help pulse-help">Kolom dikenali otomatis: tanggal, caption, link, views/plays, likes, comments, shares, saves, durasi. File baru digabung dengan data lama, dan post yang sama (link sama) diperbarui.</p>
+            <div data-ref="live"></div>
             <div data-ref="msg"></div>`,
           })}
           <div data-ref="dash"></div>
@@ -368,6 +414,101 @@
         }
       }
 
+      function saveLive() {
+        try {
+          if (live) localStorage.setItem(LIVE_KEY, JSON.stringify(live));
+          else localStorage.removeItem(LIVE_KEY);
+        } catch (_) {
+          /* abaikan */
+        }
+      }
+
+      function renderLive() {
+        const box = $('live');
+        if (!live) {
+          box.innerHTML = `
+            <div class="pulse-live">
+              <div class="pulse-live-text">
+                <strong>Instagram live</strong>
+                <span>Ambil data langsung dari akun Instagram dan perbarui otomatis tiap 15 menit.</span>
+              </div>
+              <form class="pulse-live-form" data-ref="live-form">
+                <label class="control">${icon('shield', 18)}<input type="password" data-ref="live-key" placeholder="Kunci akses (PULSE_KEY)" autocomplete="current-password" required aria-label="Kunci akses"></label>
+                <button class="btn btn-primary" type="submit">Sambungkan</button>
+              </form>
+            </div>`;
+          box.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            live = { key: $('live-key').value.trim(), lastAt: null, account: null };
+            fetchLive(false, true);
+          });
+          return;
+        }
+        const acc = live.account;
+        const status = liveBusy ? 'Mengambil data…' : live.lastAt ? `Diperbarui ${ago(live.lastAt)}` : 'Belum ada data';
+        box.innerHTML = `
+          <div class="pulse-live is-on">
+            <span class="live-dot${liveBusy ? ' is-busy' : ''}" aria-hidden="true"></span>
+            <div class="pulse-live-text">
+              <strong>Live${acc?.username ? ` · @${escapeHtml(acc.username)}` : ''}</strong>
+              <span>${acc?.followers != null ? `${fmt(acc.followers)} followers · ` : ''}${status}</span>
+            </div>
+            <div class="action-group">
+              <button class="btn btn-secondary btn-sm" data-ref="live-refresh"${liveBusy ? ' disabled' : ''}>${icon('retry', 16)} Perbarui</button>
+              <button class="btn btn-ghost btn-sm" data-ref="live-off">Putuskan</button>
+            </div>
+          </div>`;
+        $('live-refresh').addEventListener('click', () => fetchLive(true));
+        $('live-off').addEventListener('click', () => {
+          live = null;
+          saveLive();
+          renderLive();
+        });
+      }
+
+      async function fetchLive(force, connecting) {
+        if (!live || liveBusy) return;
+        liveBusy = true;
+        renderLive();
+        let fail = '';
+        try {
+          const res = await fetch('/api/instagram' + (force ? '?force=1' : ''), { headers: { 'x-pulse-key': live.key }, cache: 'no-store' });
+          const body = await res.json().catch(() => null);
+          if (!body || (res.status === 404 && !body.error)) {
+            fail = 'Endpoint live belum tersedia. Fitur ini hanya jalan setelah di-deploy ke Vercel.';
+          } else if (!res.ok) {
+            fail = body.message || `Gagal mengambil data (HTTP ${res.status}).`;
+            if (res.status === 401) live = null;
+          } else {
+            const { added, updated } = mergePosts(posts, body.posts || []);
+            live.lastAt = body.fetchedAt;
+            live.account = body.account;
+            save();
+            if (connecting || added) message(`Live tersambung: ${added} post baru, ${updated} diperbarui.`);
+            else if (body.stale) message('Batas panggilan Instagram tercapai, jadi yang tampil data terakhir.', true);
+            render();
+          }
+        } catch (_) {
+          fail = 'Tidak bisa menghubungi server. Periksa koneksi internet.';
+        }
+        if (fail) {
+          message(escapeHtml(fail), true);
+          if (connecting) live = null;
+        }
+        liveBusy = false;
+        saveLive();
+        renderLive();
+      }
+
+      // Perbarui label "x menit lalu" tiap menit, dan ambil data baru kalau sudah lewat 15 menit.
+      function tick() {
+        if (!live || document.hidden) return;
+        if (!live.lastAt || Date.now() - Date.parse(live.lastAt) >= LIVE_EVERY) fetchLive(false);
+        else if (!liveBusy) renderLive();
+      }
+      const timer = setInterval(tick, 60 * 1000);
+      document.addEventListener('visibilitychange', tick);
+
       function message(html, warn) {
         $('msg').innerHTML = html ? `<div class="notice ${warn ? 'notice-warn' : 'notice-ok'}">${html}</div>` : '';
       }
@@ -376,21 +517,11 @@
         const notes = [];
         let added = 0;
         let updated = 0;
-        const key = (p) => p.url || `${p.date}|${p.caption.slice(0, 40)}`;
-        const index = new Map(posts.map((p, i) => [key(p), i]));
         for (const f of files) {
           try {
-            for (const p of await readPosts(f)) {
-              const k = key(p);
-              if (index.has(k)) {
-                posts[index.get(k)] = p;
-                updated++;
-              } else {
-                index.set(k, posts.length);
-                posts.push(p);
-                added++;
-              }
-            }
+            const r = mergePosts(posts, await readPosts(f));
+            added += r.added;
+            updated += r.updated;
           } catch (err) {
             notes.push(`${escapeHtml(f.name)}: ${escapeHtml(err.message)}`);
           }
@@ -598,8 +729,12 @@
 
       let resize = null;
       render();
+      renderLive();
+      tick();
 
       return () => {
+        clearInterval(timer);
+        document.removeEventListener('visibilitychange', tick);
         unbind();
         resize?.disconnect();
       };
