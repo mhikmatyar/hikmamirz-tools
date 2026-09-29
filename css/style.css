@@ -1213,6 +1213,237 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 }
 
 /* ==========================================================================
+   Pulse (analitik post)
+   ========================================================================== */
+.notice-ok {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.pulse-help {
+  margin: 12px 4px 0;
+}
+
+[data-ref='msg']:not(:empty) {
+  margin-top: 12px;
+}
+
+.stack > * {
+  min-width: 0;
+}
+
+.pulse-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+}
+
+.pulse-kpis {
+  margin-bottom: 0;
+}
+
+.pulse-log {
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.pulse-log input {
+  margin: 0;
+}
+
+.pulse-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 2px 4px 10px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.pulse-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pulse-legend .sw {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--text-3);
+}
+
+.pulse-legend .sw-top {
+  background: var(--primary);
+}
+
+.pulse-legend .sw-med {
+  height: 0;
+  border-top: 2px dashed var(--text-2);
+  border-radius: 0;
+  background: none;
+}
+
+.pulse-chart {
+  position: relative;
+  min-width: 0;
+}
+
+.pulse-chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.pulse-chart .bar {
+  fill: var(--text-3);
+  transition: opacity 0.1s;
+}
+
+.pulse-chart .bar.is-top {
+  fill: var(--primary);
+}
+
+.pulse-chart svg:hover .bar:not(.is-hover) {
+  opacity: 0.55;
+}
+
+.pulse-chart .hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.pulse-chart .grid {
+  stroke: var(--border);
+}
+
+.pulse-chart .median {
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.pulse-chart .tick,
+.pulse-chart .median-label {
+  fill: var(--text-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pulse-chart .median-label {
+  fill: var(--text-2);
+}
+
+.pulse-tip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  max-width: 280px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  color: var(--text-2);
+  pointer-events: none;
+}
+
+.pulse-tip strong {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.pulse-insights {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 4px 4px 4px 22px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.pulse-insights strong {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.pulse-table-wrap {
+  overflow-x: auto;
+}
+
+.pulse-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.pulse-table th,
+.pulse-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.pulse-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.pulse-table th {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.pulse-table th button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pulse-table th button:hover {
+  color: var(--text);
+}
+
+.pulse-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pulse-table .nowrap {
+  white-space: nowrap;
+  color: var(--text-2);
+}
+
+.pulse-table .cap {
+  min-width: 220px;
+}
+
+.pulse-table .cap a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.pulse-table .cap a:hover {
+  text-decoration: underline;
+}
+
+.pulse-table .plat {
+  display: block;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* ==========================================================================
    Responsif
    ========================================================================== */
 @media (max-width: 900px) {

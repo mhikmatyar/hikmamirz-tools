@@ -5,7 +5,7 @@
  * File tool memanggil HT.register('<id>', { mount(el) { ...; return cleanup } }).
  */
 window.HT = {
-  groups: ['Image Lab', 'Doc Lab'],
+  groups: ['Image Lab', 'Doc Lab', 'Content Lab'],
 
   // name: nama produk di sidebar; tagline: fungsi singkatnya (tampil di breadcrumb dan ikut dicari).
   tools: [
@@ -35,6 +35,15 @@ window.HT = {
       icon: 'fileText',
       description: 'Ubah dokumen Word (DOCX), PDF, HTML, CSV, dan TXT ke Markdown. Bisa banyak file sekaligus, tanpa batas jumlah atau ukuran.',
       scripts: ['js/tools/doc-to-markdown.js'],
+    },
+    {
+      id: 'post-analytics',
+      name: 'Pulse',
+      tagline: 'Post Analytics',
+      group: 'Content Lab',
+      icon: 'chart',
+      description: 'Dashboard performa post Instagram, TikTok, dan YouTube dari file ekspor. Lihat views per post, post yang menonjol, hari dan durasi terbaik. Data disimpan di browser ini saja.',
+      scripts: ['js/tools/post-analytics.js'],
     },
   ],
 
