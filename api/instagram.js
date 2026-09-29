@@ -20,6 +20,8 @@ const MIN_FORCE = 60 * 1000;
 const LIMIT = 30; // insight diambil untuk 30 post terbaru
 const METRICS = ['views', 'reach', 'saved', 'shares'];
 
+const TYPES = { IMAGE: 'Foto', VIDEO: 'Video', CAROUSEL_ALBUM: 'Carousel' };
+
 let cache = null; // { at, data } — bertahan selama instance function masih hangat
 
 function safeEqual(a, b) {
@@ -101,7 +103,7 @@ async function load() {
       url: m.permalink || '',
       date: m.timestamp ? new Date(m.timestamp).toISOString() : '',
       caption: (m.caption || '').replace(/\s+/g, ' ').trim(),
-      type: m.media_product_type === 'REELS' ? 'Reel' : m.media_type || '',
+      type: m.media_product_type === 'REELS' ? 'Reel' : TYPES[m.media_type] || '',
       views: insights[i].views ?? null,
       reach: insights[i].reach ?? null,
       likes: m.like_count ?? null,

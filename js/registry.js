@@ -42,7 +42,7 @@ window.HT = {
       tagline: 'Post Analytics',
       group: 'Content Lab',
       icon: 'chart',
-      description: 'Dashboard performa post Instagram, TikTok, dan YouTube dari file ekspor atau langsung dari Instagram (live, diperbarui tiap 15 menit). Lihat views per post, post yang menonjol, hari dan durasi terbaik.',
+      description: 'Dashboard performa post Instagram yang diambil langsung dari akun kamu dan diperbarui tiap 15 menit. Lihat views per post, post yang menonjol, serta hari dan jam unggah terbaik.',
       scripts: ['js/tools/post-analytics.js'],
     },
   ],
