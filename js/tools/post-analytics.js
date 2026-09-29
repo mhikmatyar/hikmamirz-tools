@@ -13,7 +13,7 @@
 
   // Satu baris per topik: "Nama: kata kunci, kata kunci". Dicocokkan ke caption dan hashtag.
   const DEFAULT_TOPICS = [
-    'Liverpool: liverpool, anfield, lfc, ynwa, arne slot, salah, gakpo, jota',
+    'Liverpool: liverpool, anfield, lfc, ynwa, arne slot, salah, jota',
     'Timnas Indonesia: indonesia, timnas, garuda, 🇮🇩, pssi, paes, ragnar',
     'Antar-negara: world cup, piala dunia, england, germany, japan, uruguay, netherlands, brazil, argentina, france, spain, portugal',
     'Real Madrid & Barcelona: real madrid, madrid, mourinho, barcelona, barca, raphinha',
@@ -179,6 +179,34 @@
     const at = (Date.parse(last[0]) - Date.parse(p.date)) / HOUR;
     const typical = typicalAt(hist, posts, at, p);
     return typical ? { ageH: at, views: last[1], typical, lift: last[1] / typical } : null;
+  }
+
+  // ---------- indikator "dibanding biasanya" (seperti Instagram Insights) ----------
+  function quantile(sorted, q) {
+    const pos = (sorted.length - 1) * q;
+    const lo = Math.floor(pos);
+    const hi = Math.ceil(pos);
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+  }
+
+  // Kisaran biasanya = kuartil 25%–75% dari post pembanding. Butuh minimal 4 post.
+  function typicalBand(values) {
+    const a = values.filter((v) => v != null && Number.isFinite(v)).sort((x, y) => x - y);
+    return a.length >= 4 ? { lo: quantile(a, 0.25), hi: quantile(a, 0.75), n: a.length } : null;
+  }
+
+  const LEVELS = {
+    up: { label: 'Lebih tinggi dari biasanya', short: 'Di atas biasanya', cls: 'is-up', icon: 'arrowUp' },
+    normal: { label: 'Normal', short: 'Sesuai biasanya', cls: 'is-normal', icon: 'minus' },
+    down: { label: 'Lebih rendah dari biasanya', short: 'Di bawah biasanya', cls: 'is-down', icon: 'arrowDown' },
+  };
+  const levelOf = (v, band) => (v == null || !band ? null : v > band.hi ? 'up' : v < band.lo ? 'down' : 'normal');
+
+  // Post pembanding: 30 post terbaru lain dengan jenis yang sama (kalau cukup), selain post itu sendiri.
+  function peersOf(posts, p) {
+    const others = posts.filter((q) => q !== p && q.date).sort((a, b) => b.date.localeCompare(a.date));
+    const same = others.filter((q) => q.type && q.type === p.type);
+    return (same.length >= 4 ? same : others).slice(0, 30);
   }
 
   // ---------- insight ----------
@@ -575,20 +603,52 @@
         const med = median(list.map(score));
         const followers = live?.account?.followers;
         const rules = parseTopics(topicText);
-        const vsMed = (f) => {
-          const m = median(list.map((q) => q[f]));
-          return p[f] != null && m ? `<span class="dim">${times(p[f] / m)} median</span>` : '<span class="dim">&nbsp;</span>';
+        const snaps = hist.snaps[key];
+        const peers = peersOf(posts, p);
+        const ageH = p.date ? (Date.now() - Date.parse(p.date)) / HOUR : Infinity;
+        const young = ageH < 48; // angka post baru masih bertambah
+
+        // Post baru: views dibandingkan dengan post lain di umur yang sama (dari rekaman per jam), kalau ada.
+        const lastSnap = snaps?.[snaps.length - 1];
+        const snapAge = lastSnap && (Date.parse(lastSnap[0]) - Date.parse(p.date)) / HOUR;
+        const viewsBandAtAge = young && lastSnap ? typicalBand(peers.map((q) => viewsAt(hist.snaps[postKey(q)], q, snapAge))) : null;
+
+        const indicator = (v, band, show, note = '') => {
+          const l = levelOf(v, band);
+          if (!l) return { cls: '', html: `<span class="dim">${v == null ? '&nbsp;' : 'Belum cukup post pembanding'}</span>` };
+          const L = LEVELS[l];
+          return {
+            l,
+            cls: L.cls,
+            html: `<span class="pd-level ${L.cls}">${icon(L.icon, 14)} ${L.label}</span><span class="dim">Biasanya ${show(band.lo)}–${show(band.hi)}${note}</span>`,
+          };
         };
-        const metric = (label, f) => `<div class="stat"><span class="stat-label">${label}</span><span class="stat-val">${fmt(p[f])}</span>${vsMed(f)}</div>`;
+        const card = (label, value, ind, title = '') =>
+          `<div class="stat pd-stat ${ind.cls}"${title ? ` title="${escapeHtml(title)}"` : ''}><span class="stat-label">${label}</span><span class="stat-val">${value}</span>${ind.html}</div>`;
+
+        const levels = {};
+        const metric = (label, f) => {
+          const useAge = f === 'views' && viewsBandAtAge;
+          const band = typicalBand(peers.map((q) => q[f]));
+          let ind;
+          if (useAge) ind = indicator(lastSnap[1], viewsBandAtAge, fmt, ` di umur ${Math.round(snapAge)} jam`);
+          else if (young) ind = { cls: '', html: `<span class="dim">Masih bertambah${band ? ` · post lain ${fmt(band.lo)}–${fmt(band.hi)}` : ''}</span>` };
+          else ind = indicator(p[f], band, fmt);
+          levels[f] = ind.l;
+          return card(label, fmt(p[f]), ind);
+        };
         const rate = (key) => {
-          const v = RATES[key].fn(p);
-          const m = median(list.map(RATES[key].fn));
-          return `<div class="stat" title="${escapeHtml(RATES[key].hint)}"><span class="stat-label">${RATES[key].label}</span><span class="stat-val">${rateText(key, v)}</span><span class="dim">${
-            v != null && m ? `${times(v / m)} median` : '&nbsp;'
-          }</span></div>`;
+          const show = (v) => rateText(key, v);
+          const ind = indicator(RATES[key].fn(p), typicalBand(peers.map(RATES[key].fn)), show);
+          levels[key] = ind.l;
+          return card(RATES[key].label, show(RATES[key].fn(p)), ind, RATES[key].hint);
         };
         const reachF = p.reach != null && followers ? p.reach / followers : null;
-        const snaps = hist.snaps[key];
+        const reachFInd = indicator(reachF, typicalBand(peers.map((q) => (q.reach != null && followers ? q.reach / followers : null))), times);
+        const metricCards = ['Views:views', 'Reach:reach', 'Likes:likes', 'Komentar:comments', 'Shares:shares', 'Saves:saves'].map((s) => metric(...s.split(':'))).join('');
+        const rateCards = ['er', 'share', 'save', 'rewatch'].map(rate).join('');
+        const head = levels.views || levels.reach;
+        const peerType = peers.length && peers.every((q) => q.type === p.type) && p.type ? `${p.type} ` : 'post ';
         const milestones = [1, 3, 24]
           .map((h) => ({ h, v: viewsAt(snaps, p, h), t: typicalAt(hist, posts, h, p) }))
           .filter((m) => m.v != null);
@@ -610,17 +670,27 @@
                 ${p.url ? `<a class="btn btn-secondary btn-sm" href="${escapeHtml(p.url)}" target="_blank" rel="noopener">${icon('external', 16)} Buka di Instagram</a>` : ''}
               </div>
             </div>
+            ${
+              head
+                ? `<div class="pd-summary ${LEVELS[head].cls}">${icon(LEVELS[head].icon, 18)}<div><strong>${LEVELS[head].short}</strong><span>${
+                    levels.views ? 'Views' : 'Reach'
+                  } dibanding ${peers.length} ${escapeHtml(peerType)}terakhir. "Biasanya" = kisaran tengah (25%–75%) post pembanding.</span></div></div>`
+                : ''
+            }
+            ${
+              young
+                ? `<p class="notice notice-warn pd-note">Post ini baru berumur ${ageH < 1 ? `${Math.round(ageH * 60)} menit` : `${Math.round(ageH)} jam`}, jadi jumlahnya masih bertambah dan belum diberi label. Rasio (share rate, save rate, dll.) sudah bisa dibandingkan${
+                    viewsBandAtAge ? ', dan views dibandingkan dengan post lain di umur yang sama' : ''
+                  }.</p>`
+                : ''
+            }
             <h3>Angka</h3>
-            <div class="stats pd-stats">
-              ${metric('Views', 'views')}${metric('Reach', 'reach')}${metric('Likes', 'likes')}${metric('Komentar', 'comments')}${metric('Shares', 'shares')}${metric('Saves', 'saves')}
-            </div>
+            <div class="stats pd-stats">${metricCards}</div>
             <h3>Rasio</h3>
             <div class="stats pd-stats">
-              ${rate('er')}${rate('share')}${rate('save')}${rate('rewatch')}
-              <div class="stat" title="reach ÷ followers; di atas 1× berarti menjangkau non-follower"><span class="stat-label">Reach vs followers</span><span class="stat-val">${times(reachF)}</span><span class="dim">${
-                reachF == null ? '&nbsp;' : reachF > 1 ? 'menembus non-follower' : 'sebatas followers'
-              }</span></div>
-              <div class="stat"><span class="stat-label">vs median views</span><span class="stat-val">${times(med ? score(p) / med : null)}</span><span class="dim">median ${fmt(med)}</span></div>
+              ${rateCards}
+              ${card('Reach vs followers', times(reachF), reachFInd.cls ? reachFInd : { cls: '', html: `<span class="dim">${reachF == null ? '&nbsp;' : reachF > 1 ? 'menembus non-follower' : 'sebatas followers'}</span>` }, 'reach ÷ followers; di atas 1× berarti menjangkau non-follower')}
+              ${card('vs median views', times(med ? score(p) / med : null), { cls: '', html: `<span class="dim">median ${fmt(med)}</span>` })}
             </div>
             <h3>Kecepatan awal</h3>
             ${
