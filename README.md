@@ -19,7 +19,7 @@ Kumpulan tools yang berjalan langsung di browser (browser-native toolkit). Tidak
   - ringkasan (followers dan pertumbuhan 7 hari, median views, engagement, share rate);
   - grafik views per post, dengan post ≥ 2× median ditandai;
   - insight otomatis: kecepatan awal post terbaru dibanding biasanya, share/save rate, jangkauan di luar followers, rewatch, serta hari dan jam terbaik;
-  - **Topik**: post dikelompokkan dari kata kunci di caption, dengan saran Lanjutkan / Uji lagi / Kurangi. Aturan topik bisa diubah lewat "Atur topik";
+  - **Kelompok post**, dengan tab **Topik** dan **Tool / Sponsor**. Post dikelompokkan dari kata kunci di caption, dengan saran Lanjutkan / Uji lagi / Kurangi. Tool/sponsor dikenali dari penyebutan seperti "Created with @syntx_global"; post tanpa tool masuk "Tidak ada sponsor" sebagai pembanding. Aturan tiap tab bisa diubah lewat "Atur topik" / "Atur tool", dan klik nama kelompok untuk memfilter tabel post;
   - grafik pertumbuhan followers;
   - tabel semua post dengan ikon detail. Panel detail menampilkan semua angka, rasio dibanding median, topik, dan kurva views sejak diunggah.
 

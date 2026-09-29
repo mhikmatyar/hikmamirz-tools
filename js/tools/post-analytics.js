@@ -4,6 +4,7 @@
   const LIVE_KEY = 'kf-pulse-live';
   const HIST_KEY = 'kf-pulse-history';
   const TOPIC_KEY = 'kf-pulse-topics';
+  const TOOL_KEY = 'kf-pulse-tools';
   const LIVE_EVERY = 15 * 60 * 1000; // data live diperbarui tiap 15 menit selama halaman terbuka
   const HOUR = 36e5;
   const TRACK_HOURS = 72; // riwayat views per post direkam selama 72 jam pertama
@@ -18,8 +19,23 @@
     'Antar-negara: world cup, piala dunia, england, germany, japan, uruguay, netherlands, brazil, argentina, france, spain, portugal',
     'Real Madrid & Barcelona: real madrid, madrid, mourinho, barcelona, barca, raphinha',
     'Komedi: 😂, 🤣, lol, funny, meme, found their true calling',
-    'Sponsor Syntx: syntx, mirza15',
   ].join('\n');
+
+  // Tool AI / sponsor (CPP) yang disebut di caption, format sama dengan topik.
+  const DEFAULT_TOOLS = [
+    'Syntx: syntx, @syntx_global, @syntx_creators, mirza15',
+    'PixVerse: pixverse, @pixversecreators, @pixverse_official',
+    'Flova: flova',
+    'Kling: kling',
+    'Hailuo: hailuo, minimax',
+    'Higgsfield: higgsfield',
+    'Runway: runway',
+  ].join('\n');
+
+  const GROUPS = {
+    topic: { label: 'Topik', noun: 'topik', key: TOPIC_KEY, def: DEFAULT_TOPICS, fallback: 'Lainnya', fallbackVerdict: '–' },
+    tool: { label: 'Tool / Sponsor', noun: 'tool', key: TOOL_KEY, def: DEFAULT_TOOLS, fallback: 'Tidak ada sponsor', fallbackVerdict: 'Pembanding' },
+  };
 
   // ---------- hitung ----------
   function median(nums) {
@@ -94,16 +110,16 @@
     return new RegExp(`(^|[^\\p{L}\\p{N}])${esc}`, 'u').test(text);
   }
 
-  function topicsOf(p, rules) {
+  function topicsOf(p, rules, fallback = 'Lainnya') {
     const text = (p.caption || '').toLowerCase();
     const hit = rules.filter((r) => r.words.some((w) => hasWord(text, w))).map((r) => r.name);
-    return hit.length ? hit : ['Lainnya'];
+    return hit.length ? hit : [fallback];
   }
 
-  function topicStats(list, rules, med) {
+  function topicStats(list, rules, med, fallback = 'Lainnya', fallbackVerdict = '–') {
     const groups = new Map();
     for (const p of list) {
-      for (const t of topicsOf(p, rules)) {
+      for (const t of topicsOf(p, rules, fallback)) {
         if (!groups.has(t)) groups.set(t, []);
         groups.get(t).push(p);
       }
@@ -115,13 +131,14 @@
         const lift = med ? m / med : null;
         const share = median(ps.map(RATES.share.fn));
         let verdict;
-        if (ps.length < 2) verdict = { label: 'Butuh data', cls: '' };
+        if (name === fallback) verdict = { label: fallbackVerdict, cls: '' }; // kelompok sisa, bukan pilihan konten
+        else if (ps.length < 2) verdict = { label: 'Butuh data', cls: '' };
         else if (lift >= 1.3 || (lift >= 1 && shareMed && share >= shareMed * 1.5)) verdict = { label: 'Lanjutkan', cls: 'badge-good' };
         else if (lift <= 0.7) verdict = { label: 'Kurangi', cls: 'badge-warn' };
         else verdict = { label: 'Uji lagi', cls: '' };
         return { name, n: ps.length, median: m, lift, share, save: median(ps.map(RATES.save.fn)), er: median(ps.map(engagement)), verdict };
       })
-      .sort((a, b) => (a.name === 'Lainnya') - (b.name === 'Lainnya') || b.median - a.median);
+      .sort((a, b) => (a.name === fallback) - (b.name === fallback) || b.median - a.median);
   }
 
   // ---------- riwayat (followers dan views per jam) ----------
@@ -447,17 +464,20 @@
       // Semua data dari Instagram live; sisa impor file lama dibuang.
       let posts = load(STORE_KEY, []).filter((p) => p.source === 'live');
       let hist = load(HIST_KEY, null) || { followers: [], snaps: {} };
-      let topicText = (() => {
+      const ruleText = {};
+      for (const [kind, g] of Object.entries(GROUPS)) {
         try {
-          return localStorage.getItem(TOPIC_KEY) ?? DEFAULT_TOPICS;
+          ruleText[kind] = localStorage.getItem(g.key) ?? g.def;
         } catch (_) {
-          return DEFAULT_TOPICS;
+          ruleText[kind] = g.def;
         }
-      })();
+      }
+      const rulesFor = (kind) => parseTopics(ruleText[kind]);
+      const groupsOf = (p, kind) => topicsOf(p, rulesFor(kind), GROUPS[kind].fallback);
       let live = load(LIVE_KEY, null); // { key, lastAt, account }
       if (live && !posts.length) live.lastAt = null; // ambil ulang segera kalau riwayat kosong
       let liveBusy = false;
-      const state = { range: 'all', sort: 'date', dir: -1, log: false, topic: null, rulesOpen: false };
+      const state = { range: 'all', sort: 'date', dir: -1, log: false, group: 'topic', filter: null, rulesOpen: false }; // filter: { kind, name }
       const charts = [];
 
       el.innerHTML = `
@@ -587,9 +607,15 @@
       });
 
       $('export').addEventListener('click', () => {
-        const rules = parseTopics(topicText);
-        const cols = ['date', 'caption', 'url', 'type', ...METRICS, 'share_rate', 'save_rate', 'rewatch', 'topics'];
-        const row = (p) => ({ ...p, share_rate: RATES.share.fn(p), save_rate: RATES.save.fn(p), rewatch: RATES.rewatch.fn(p), topics: topicsOf(p, rules).join('; ') });
+        const cols = ['date', 'caption', 'url', 'type', ...METRICS, 'share_rate', 'save_rate', 'rewatch', 'topics', 'tools'];
+        const row = (p) => ({
+          ...p,
+          share_rate: RATES.share.fn(p),
+          save_rate: RATES.save.fn(p),
+          rewatch: RATES.rewatch.fn(p),
+          topics: groupsOf(p, 'topic').join('; '),
+          tools: groupsOf(p, 'tool').join('; '),
+        });
         const esc = (v) => (/[",\n]/.test(String(v ?? '')) ? `"${String(v).replace(/"/g, '""')}"` : v ?? '');
         const csv = [cols.join(','), ...posts.map(row).map((r) => cols.map((c) => esc(r[c])).join(','))].join('\n');
         HTUtil.downloadBlob(new Blob(['﻿' + csv], { type: 'text/csv' }), `performa-post-${HTUtil.today()}.csv`);
@@ -602,7 +628,6 @@
         const list = visible();
         const med = median(list.map(score));
         const followers = live?.account?.followers;
-        const rules = parseTopics(topicText);
         const snaps = hist.snaps[key];
         const peers = peersOf(posts, p);
         const ageH = p.date ? (Date.now() - Date.parse(p.date)) / HOUR : Infinity;
@@ -666,7 +691,11 @@
               ${p.thumb ? `<img class="pd-thumb" src="${escapeHtml(p.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
               <div class="pd-caption">
                 <p>${escapeHtml(p.caption || 'Tanpa caption')}</p>
-                <div class="pd-tags">${topicsOf(p, rules).map((t) => `<span class="badge">${escapeHtml(t)}</span>`).join('')}</div>
+                <div class="pd-tags">${groupsOf(p, 'topic')
+                  .map((t) => `<span class="badge">${escapeHtml(t)}</span>`)
+                  .join('')}${groupsOf(p, 'tool')
+                  .map((t) => `<span class="badge badge-tool">${icon('sliders', 13)} ${escapeHtml(t)}</span>`)
+                  .join('')}</div>
                 ${p.url ? `<a class="btn btn-secondary btn-sm" href="${escapeHtml(p.url)}" target="_blank" rel="noopener">${icon('external', 16)} Buka di Instagram</a>` : ''}
               </div>
             </div>
@@ -766,9 +795,10 @@
           const first = hist.followers.find((f) => Date.parse(f[0]) >= since);
           return first && followers != null ? followers - first[1] : null;
         })();
-        const rules = parseTopics(topicText);
-        const topics = topicStats(list, rules, med);
-        const tableList = state.topic ? list.filter((p) => topicsOf(p, rules).includes(state.topic)) : list;
+        const G = GROUPS[state.group];
+        const groupRows = topicStats(list, rulesFor(state.group), med, G.fallback, G.fallbackVerdict);
+        const tableList = state.filter ? list.filter((p) => groupsOf(p, state.filter.kind).includes(state.filter.name)) : list;
+        const isActive = (name) => state.filter?.kind === state.group && state.filter.name === name;
         const shareMed = median(list.map(RATES.share.fn));
 
         const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${label}</option>`;
@@ -818,23 +848,28 @@
             })}
             ${HTUtil.block({
               icon: 'tag',
-              title: 'Topik',
-              actions: `<button class="btn btn-ghost btn-sm" data-ref="rules-toggle" aria-expanded="${state.rulesOpen}">${icon('sliders', 16)} Atur topik</button>`,
+              title: 'Kelompok post',
+              actions: `<button class="btn btn-ghost btn-sm" data-ref="rules-toggle" aria-expanded="${state.rulesOpen}">${icon('sliders', 16)} Atur ${G.noun}</button>`,
               body: `
+                <div class="pulse-tabs" role="tablist" aria-label="Kelompokkan berdasarkan">
+                  ${Object.entries(GROUPS)
+                    .map(([kind, g]) => `<button role="tab" data-group="${kind}" aria-selected="${state.group === kind}">${g.label}</button>`)
+                    .join('')}
+                </div>
                 <div class="pulse-rules" data-ref="rules"${state.rulesOpen ? '' : ' hidden'}>
-                  <label class="help" for="pulse-rules-text">Satu topik per baris: <code>Nama: kata kunci, kata kunci</code>. Dicocokkan ke caption dan hashtag; satu post bisa masuk beberapa topik.</label>
-                  <textarea id="pulse-rules-text" data-ref="rules-text" rows="7" spellcheck="false">${escapeHtml(topicText)}</textarea>
+                  <label class="help" for="pulse-rules-text">Satu ${G.noun} per baris: <code>Nama: kata kunci, kata kunci</code>. Dicocokkan ke caption dan hashtag; satu post bisa masuk beberapa ${G.noun}. Post tanpa kecocokan masuk ke “${G.fallback}”.</label>
+                  <textarea id="pulse-rules-text" data-ref="rules-text" rows="7" spellcheck="false">${escapeHtml(ruleText[state.group])}</textarea>
                   <div class="action-group">
                     <button class="btn btn-primary btn-sm" data-ref="rules-save">Simpan</button>
                     <button class="btn btn-ghost btn-sm" data-ref="rules-reset">Kembalikan bawaan</button>
                   </div>
                 </div>
                 <div class="pulse-table-wrap"><table class="pulse-table pulse-topics">
-                  <thead><tr><th>Topik</th><th class="num">Post</th><th class="num">Median views</th><th class="num">vs median</th><th class="num">Share rate</th><th class="num">Save rate</th><th>Saran</th></tr></thead>
-                  <tbody>${topics
+                  <thead><tr><th>${G.label}</th><th class="num">Post</th><th class="num">Median views</th><th class="num">vs median</th><th class="num">Share rate</th><th class="num">Save rate</th><th>Saran</th></tr></thead>
+                  <tbody>${groupRows
                     .map(
-                      (t) => `<tr class="${state.topic === t.name ? 'is-active' : ''}">
-                        <td><button class="linkish" data-topic="${escapeHtml(t.name)}" title="Tampilkan post di topik ini">${escapeHtml(t.name)}</button></td>
+                      (t) => `<tr class="${isActive(t.name) ? 'is-active' : ''}">
+                        <td><button class="linkish" data-filter="${escapeHtml(t.name)}" title="Tampilkan post di kelompok ini">${escapeHtml(t.name)}</button></td>
                         <td class="num">${t.n}</td>
                         <td class="num">${fmt(t.median)}</td>
                         <td class="num">${times(t.lift)}</td>
@@ -845,7 +880,9 @@
                     )
                     .join('')}</tbody>
                 </table></div>
-                <p class="help pulse-note"><strong>Lanjutkan</strong>: median views ≥ 1,3× keseluruhan, atau setara tapi share rate ≥ 1,5× median. <strong>Kurangi</strong>: ≤ 0,7×. <strong>Uji lagi</strong>: di antaranya. Butuh minimal 2 post per topik.</p>`,
+                <p class="help pulse-note"><strong>Lanjutkan</strong>: median views ≥ 1,3× keseluruhan, atau setara tapi share rate ≥ 1,5× median. <strong>Kurangi</strong>: ≤ 0,7×. <strong>Uji lagi</strong>: di antaranya. Butuh minimal 2 post per kelompok. “${G.fallback}” ${
+                  state.group === 'tool' ? 'jadi pembanding untuk melihat apakah post dengan tool/sponsor lebih baik' : 'berisi post yang tidak cocok dengan topik mana pun'
+                }.</p>`,
             })}
             ${
               followerChart
@@ -861,8 +898,8 @@
               icon: 'fileText',
               title: 'Semua post',
               ref: 'posts-block',
-              actions: state.topic
-                ? `<button class="btn btn-secondary btn-sm" data-topic="">${icon('x', 16)} Topik: ${escapeHtml(state.topic)}</button>`
+              actions: state.filter
+                ? `<button class="btn btn-secondary btn-sm" data-filter-clear>${icon('x', 16)} ${GROUPS[state.filter.kind].label}: ${escapeHtml(state.filter.name)}</button>`
                 : '',
               body: `<div class="pulse-table-wrap"><table class="pulse-table">
                 <thead><tr>${th('date', 'Tanggal')}<th>Post</th>${th('views', hasViews ? 'Views' : 'Likes', true)}${th('likes', 'Likes', true)}${th(
@@ -878,7 +915,7 @@
                     const key = escapeHtml(postKey(p));
                     return `<tr>
                       <td class="nowrap">${fdate(p.date)}</td>
-                      <td class="cap">${p.type ? `<span class="plat">${escapeHtml(p.type)}</span>` : ''}${p.url ? `<a href="${escapeHtml(p.url)}" target="_blank" rel="noopener">${cap}</a>` : cap}</td>
+                      <td class="cap"><span class="plat">${escapeHtml([p.type, ...groupsOf(p, 'tool').filter((t) => t !== GROUPS.tool.fallback)].filter(Boolean).join(' · '))}</span>${p.url ? `<a href="${escapeHtml(p.url)}" target="_blank" rel="noopener">${cap}</a>` : cap}</td>
                       <td class="num">${fmt(score(p))}</td>
                       <td class="num">${fmt(p.likes)}</td>
                       <td class="num">${fmt(p.comments)}</td>
@@ -912,11 +949,21 @@
             render();
           })
         );
-        dash.querySelectorAll('[data-topic]').forEach((b) =>
+        dash.querySelectorAll('[data-filter]').forEach((b) =>
           b.addEventListener('click', () => {
-            state.topic = b.dataset.topic && state.topic !== b.dataset.topic ? b.dataset.topic : null;
+            state.filter = isActive(b.dataset.filter) ? null : { kind: state.group, name: b.dataset.filter };
             render();
-            if (state.topic) $('posts-block')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (state.filter) $('posts-block')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          })
+        );
+        dash.querySelector('[data-filter-clear]')?.addEventListener('click', () => {
+          state.filter = null;
+          render();
+        });
+        dash.querySelectorAll('[data-group]').forEach((b) =>
+          b.addEventListener('click', () => {
+            state.group = b.dataset.group;
+            render();
           })
         );
         $('rules-toggle').addEventListener('click', () => {
@@ -925,15 +972,15 @@
           $('rules-toggle').setAttribute('aria-expanded', state.rulesOpen);
         });
         $('rules-save').addEventListener('click', () => {
-          topicText = $('rules-text').value.trim() || DEFAULT_TOPICS;
-          store(TOPIC_KEY, topicText);
-          state.topic = null;
+          ruleText[state.group] = $('rules-text').value.trim() || G.def;
+          store(G.key, ruleText[state.group]);
+          state.filter = null;
           render();
         });
         $('rules-reset').addEventListener('click', () => {
-          topicText = DEFAULT_TOPICS;
-          store(TOPIC_KEY, null);
-          state.topic = null;
+          ruleText[state.group] = G.def;
+          store(G.key, null);
+          state.filter = null;
           render();
         });
 
