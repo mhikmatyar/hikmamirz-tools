@@ -37,7 +37,7 @@ lalu buka http://localhost:5173.
 - Gambar diproses paralel di Web Worker (maks. 4 sekaligus, menyesuaikan jumlah core CPU), jadi halaman tetap responsif. Kalau worker tidak tersedia, proses otomatis pindah ke halaman.
 - Daftar file memakai thumbnail kecil (112 px) dan `content-visibility`, jadi ribuan file tetap ringan.
 - `zip.js` dan library dokumen baru dimuat saat dibutuhkan.
-- `sw.js` menyimpan file aplikasi (stale-while-revalidate) dan library CDN (cache-first), jadi kunjungan berikutnya instan dan library tidak diunduh ulang. Service worker tidak aktif di `localhost` supaya tidak mengganggu saat development.
+- `sw.js` mengambil file aplikasi dari jaringan dulu (network-first, jadi update langsung terlihat) dan menyimpannya untuk dipakai saat offline. Library CDN disimpan cache-first, jadi tidak diunduh ulang. Service worker tidak aktif di `localhost` supaya tidak mengganggu saat development.
 
 ## Menambah tool baru
 
