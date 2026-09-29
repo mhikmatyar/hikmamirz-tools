@@ -1291,6 +1291,248 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   }
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.linkish {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.linkish:hover {
+  text-decoration-color: currentColor;
+}
+
+.stat .dim {
+  font-size: 12.5px;
+}
+
+.pulse-note {
+  margin: 12px 4px 0;
+}
+
+.pulse-note strong {
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.pulse-rules {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 14px;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.pulse-rules code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+
+.pulse-rules textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.pulse-rules textarea:focus {
+  outline: none;
+  border-color: var(--text-3);
+  box-shadow: 0 0 0 3px var(--hover);
+}
+
+.pulse-topics tr.is-active td {
+  background: var(--hover);
+}
+
+.pulse-table .icon-btn {
+  width: 32px;
+  height: 32px;
+  margin: -6px 0;
+}
+
+.pulse-chart .line {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.pulse-chart .line-compare {
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.pulse-chart .line-end,
+.pulse-chart .line-dot {
+  fill: var(--primary);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.pulse-chart .cross {
+  stroke: var(--border-strong);
+}
+
+.pulse-legend .sw.sw-line {
+  height: 0;
+  border-top: 2px solid var(--primary);
+  border-radius: 0;
+  background: none;
+}
+
+/* Panel detail post */
+.pulse-dialog {
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.25);
+}
+
+.pulse-dialog::backdrop {
+  background: rgb(10 10 10 / 0.45);
+}
+
+.pd-head {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 18px 14px 22px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.pd-kicker {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.pd-head h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.pd-body {
+  padding: 18px 22px 22px;
+}
+
+.pd-body h3 {
+  margin: 22px 0 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.pd-top {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.pd-thumb {
+  flex: none;
+  width: 120px;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--field);
+}
+
+.pd-caption {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  min-width: 0;
+}
+
+.pd-caption p {
+  margin: 0;
+  max-height: 220px;
+  overflow: auto;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--text-2);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.pd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pd-stats {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  margin: 0;
+}
+
+.pd-milestones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 10px;
+  font-size: 13.5px;
+  color: var(--text-2);
+}
+
+.pd-milestones strong {
+  font-weight: 500;
+  color: var(--text);
+}
+
+@media (max-width: 560px) {
+  .pd-top {
+    flex-direction: column;
+  }
+
+  .pd-thumb {
+    width: 96px;
+  }
+
+  .pd-body {
+    padding: 16px;
+  }
+}
+
 .pulse-filters {
   display: grid;
   grid-template-columns: minmax(0, 280px);
@@ -1431,6 +1673,7 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 }
 
 .pulse-table-wrap {
+  position: relative;
   overflow-x: auto;
 }
 

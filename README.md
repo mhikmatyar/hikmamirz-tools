@@ -15,7 +15,15 @@ Kumpulan tools yang berjalan langsung di browser (browser-native toolkit). Tidak
 
 **Content Lab**
 
-- **Pulse** (Post Analytics): dashboard performa post Instagram yang diambil langsung dari akun lewat `api/instagram.js` dan diperbarui tiap 15 menit (lihat [Pulse live](#pulse-live-instagram)). Menampilkan ringkasan, grafik views per post dengan garis median, post yang menonjol (≥ 2× median), insight hari dan jam unggah terbaik, serta tabel yang bisa diurutkan. Riwayat post disimpan di `localStorage` browser, jadi post lama tetap ada walaupun API hanya mengembalikan 30 post terbaru.
+- **Pulse** (Post Analytics): dashboard performa post Instagram yang diambil langsung dari akun lewat `api/instagram.js` dan diperbarui tiap 15 menit (lihat [Pulse live](#pulse-live-instagram)). Isinya:
+  - ringkasan (followers dan pertumbuhan 7 hari, median views, engagement, share rate);
+  - grafik views per post, dengan post ≥ 2× median ditandai;
+  - insight otomatis: kecepatan awal post terbaru dibanding biasanya, share/save rate, jangkauan di luar followers, rewatch, serta hari dan jam terbaik;
+  - **Topik**: post dikelompokkan dari kata kunci di caption, dengan saran Lanjutkan / Uji lagi / Kurangi. Aturan topik bisa diubah lewat "Atur topik";
+  - grafik pertumbuhan followers;
+  - tabel semua post dengan ikon detail. Panel detail menampilkan semua angka, rasio dibanding median, topik, dan kurva views sejak diunggah.
+
+  Riwayat post, followers, dan views per jam (72 jam pertama tiap post) disimpan di `localStorage` browser.
 
 Semua tool memproses banyak file sekaligus tanpa batas jumlah, lalu hasilnya bisa di-download per file atau dalam satu ZIP.
 

@@ -89,7 +89,7 @@ async function load() {
   const [me, media] = await Promise.all([
     graph('/me', { fields: 'username,followers_count,media_count' }),
     graph('/me/media', {
-      fields: 'id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count',
+      fields: 'id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count,thumbnail_url,media_url',
       limit: String(LIMIT),
     }),
   ]);
@@ -102,7 +102,8 @@ async function load() {
       platform: 'instagram',
       url: m.permalink || '',
       date: m.timestamp ? new Date(m.timestamp).toISOString() : '',
-      caption: (m.caption || '').replace(/\s+/g, ' ').trim(),
+      caption: (m.caption || '').trim(),
+      thumb: m.thumbnail_url || (m.media_type === 'VIDEO' ? '' : m.media_url) || '',
       type: m.media_product_type === 'REELS' ? 'Reel' : TYPES[m.media_type] || '',
       views: insights[i].views ?? null,
       reach: insights[i].reach ?? null,
