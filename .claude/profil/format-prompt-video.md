@@ -10,10 +10,17 @@ Semua prompt visual untuk PixVerse, Syntx, atau Flova ditulis **per klip** denga
   - Alex Baena → ALEX BAINA
   - Oyarzabal → MIKEL OYARZABAR
   - Unai Simón → Unai Simo
+  - Andoni Iraola → ANDONI IRAORA
+  - Jürgen Klopp → JURGEN KLOP
+  - Graham Potter → GRAHAM POTTA
+  - Xavi → CHAVI
+  - Lewis Koumas → LEWIS KUMAS
+  - Cody Gakpo → CODY GAKUPO
   - Nama lain ada di skill `ai-anime-soccer`.
 
   Untuk karakter baru, usulkan nama parodinya dulu dan minta pengguna mengonfirmasi. Jangan berganti-ganti antara nama asli dan nama parodi dalam satu proyek.
 - **Karakter:** semuanya ditulis sebagai "Fictional ...", lengkap dengan nomor punggung yang dikunci. Pemain lain cukup "GENERIC ... background only, no recognizable real-player likeness".
+- **Character sheet:** buat sheet (gambar 16:9, 4 pose + 4 ekspresi) untuk karakter yang tampil di lebih dari satu klip atau akan muncul lagi. Karakter yang hanya bersuara tidak perlu sheet. Sheet diunggah sebagai referensi di tiap klip lewat blok CHARACTER REFERENCE.
 - **Bola:** kalau bola terlihat, pakai gambar referensi bola yang diunggah.
 - **Teks di layar:** tidak ada teks hasil generate kecuali yang memang diizinkan (scoreboard, nomor punggung). Nama, layar ponsel, dan subtitle ditambahkan di CapCut.
 - **Audio:** tanpa musik latar. Hanya ambience dan SFX.
@@ -64,6 +71,15 @@ Fictional <peran>.
 N. GENERIC <...>
 Background only.
 No recognizable real-player likenesses.
+
+CHARACTER REFERENCE:
+Use the uploaded character sheets as the exact visual reference for:
+- <nama karakter yang tampil di klip ini>
+Preserve:
+- exact face and hairline
+- exact hair color
+- exact outfit and number
+- exact proportions
 
 BALL REFERENCE:
 Whenever the football is visible,
