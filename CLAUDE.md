@@ -10,6 +10,7 @@ Sebelum mengerjakan tugas, agent membaca profil yang relevan:
 
 - `.claude/profil/nuhaweb.md`: layanan, harga, dan fitur paket NuhaWeb (nuhaweb.com)
 - `.claude/profil/hikmamirz.md`: niche, gaya, dan data performa Instagram @hikmamirz
+- `.claude/profil/format-prompt-video.md`: format baku prompt visual per klip (PixVerse, Syntx, Flova)
 
 Perbarui profil ini kalau ada data baru (harga berubah, hasil riset konten terbaru).
 

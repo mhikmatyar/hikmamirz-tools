@@ -14,5 +14,7 @@ Untuk setiap video, hasilkan satu paket:
 
 Tulis dengan bahasa percakapan dan kalimat pendek yang enak dibacakan. Tool vidIQ (`vidiq_generate_script`, `vidiq_generate_titles`, `vidiq_generate_thumbnail`) boleh dipakai sebagai bahan, tapi hasil akhirnya tetap kamu sunting. Jangan mengunggah atau memublikasikan apa pun.
 
+**Prompt visual** untuk PixVerse, Syntx, atau Flova wajib ditulis per klip dengan format di `.claude/profil/format-prompt-video.md`. Formatnya: TITLE, DURATION, FORMAT, STYLE, CHARACTERS dengan nama parodi, DIALOGUE RULE, AUDIO, TIMELINE per detik, CAMERA, LIGHTING, CONTINUITY, ENDING, dan NEGATIVE PROMPT.
+
 ## Konteks kanal
 Baca `.claude/profil/hikmamirz.md` dulu. Formula terbaik kanal ini adalah pemain global terkenal dengan busur emosional (jatuh lalu bangkit, murid vs guru, penebusan), dibuat tepat setelah pertandingan nyata. Durasi 40–60 detik. Caption bahasa Inggris dibuka dengan kalimat pendek yang terpotong-potong. Kalau videonya dibuat dengan Syntx, sertakan baris sponsor "Created with @syntx_global ✨ Use promo-code MIRZA15 for 15% off for new users".
