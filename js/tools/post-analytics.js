@@ -4,200 +4,9 @@
   const LIVE_KEY = 'kf-pulse-live';
   const LIVE_EVERY = 15 * 60 * 1000; // data live diperbarui tiap 15 menit selama halaman terbuka
   const DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  const PLATFORMS = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', facebook: 'Facebook', x: 'X', lainnya: 'Lainnya' };
   const OUTLIER = 2; // post dianggap menonjol kalau views-nya >= 2x median
 
-  // Nama kolom dari ekspor Meta Business Suite, Instagram, TikTok Studio, YouTube Studio, atau spreadsheet sendiri.
-  // Urutan penting: alias pertama yang cocok persis menang, lalu baru dicari yang mengandung alias.
-  const FIELDS = {
-    date: ['publishtime', 'posttime', 'publishedat', 'published', 'createtime', 'createdat', 'timestamp', 'date', 'tanggal', 'waktu', 'waktupublikasi', 'videopublishtime'],
-    caption: ['description', 'caption', 'videotitle', 'title', 'judul', 'keterangan', 'text', 'content'],
-    url: ['permalink', 'url', 'link', 'videolink', 'postlink', 'tautan', 'shortcode'],
-    type: ['posttype', 'mediatype', 'type', 'jenis', 'format'],
-    platform: ['platform', 'network', 'channel'],
-    views: ['views', 'plays', 'totalviews', 'videoviews', 'playcount', 'viewcount', 'tayangan', 'dilihat', 'impressions', 'tayanganvideo'],
-    reach: ['reach', 'accountsreached', 'jangkauan'],
-    likes: ['likes', 'totallikes', 'likecount', 'suka', 'reactions', 'reaksi'],
-    comments: ['comments', 'totalcomments', 'commentcount', 'komentar'],
-    shares: ['shares', 'totalshares', 'sharecount', 'dibagikan', 'bagikan'],
-    saves: ['saves', 'saved', 'disimpan', 'favorites', 'addtofavorites'],
-    duration: ['durationsec', 'duration', 'durasi', 'videoduration', 'length', 'panjang'],
-  };
   const METRICS = ['views', 'reach', 'likes', 'comments', 'shares', 'saves'];
-
-  const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
-
-  function mapColumns(headers) {
-    const keys = headers.map(norm);
-    const map = {};
-    const used = new Set();
-    for (const [field, aliases] of Object.entries(FIELDS)) {
-      let idx = -1;
-      for (const a of aliases) {
-        idx = keys.findIndex((k, i) => !used.has(i) && k === a);
-        if (idx >= 0) break;
-      }
-      if (idx < 0) {
-        for (const a of aliases) {
-          if (a.length < 4) continue;
-          idx = keys.findIndex((k, i) => !used.has(i) && k.includes(a));
-          if (idx >= 0) break;
-        }
-      }
-      if (idx >= 0) {
-        map[field] = idx;
-        used.add(idx);
-      }
-    }
-    return map;
-  }
-
-  // "1,234" "1.234" "148.5K" "12,8 rb" "1,2 jt" "3.4M" → angka.
-  function parseNum(v) {
-    if (typeof v === 'number') return Number.isFinite(v) ? v : null;
-    let s = String(v ?? '').trim().toLowerCase().replace(/\s+/g, '');
-    if (!s || s === '-' || s === '--') return null;
-    let mult = 1;
-    const suf = /(k|rb|ribu|m|jt|juta|b|mn)$/.exec(s);
-    if (suf) {
-      mult = { k: 1e3, rb: 1e3, ribu: 1e3, m: 1e6, jt: 1e6, juta: 1e6, mn: 1e6, b: 1e9 }[suf[1]];
-      s = s.slice(0, -suf[1].length);
-    }
-    s = s.replace(/%$/, '');
-    if (/^-?\d{1,3}([.,]\d{3})+$/.test(s) && mult === 1) s = s.replace(/[.,]/g, '');
-    else s = s.replace(',', '.');
-    const n = parseFloat(s);
-    return Number.isFinite(n) ? n * mult : null;
-  }
-
-  // Durasi: "58", "0:58", "1:05:00".
-  function parseDuration(v) {
-    const s = String(v ?? '').trim();
-    if (/^\d+(:\d{1,2}){1,2}$/.test(s)) return s.split(':').reduce((t, p) => t * 60 + Number(p), 0);
-    return parseNum(s);
-  }
-
-  // Tanggal dengan garis miring bisa DD/MM atau MM/DD; urutannya ditebak dari seluruh kolom.
-  const SLASH = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?:[ T,]+(\d{1,2})[:.](\d{2}))?/;
-  function dateOrder(values) {
-    for (const v of values) {
-      const m = SLASH.exec(String(v).trim());
-      if (m && +m[1] > 12) return 'dmy';
-      if (m && +m[2] > 12) return 'mdy';
-    }
-    return 'mdy'; // bawaan ekspor Meta dan TikTok
-  }
-
-  function parseDate(v, order) {
-    if (v == null || v === '') return null;
-    const s = String(v).trim();
-    if (/^\d{10}$/.test(s)) return new Date(+s * 1000);
-    if (/^\d{13}$/.test(s)) return new Date(+s);
-    const m = SLASH.exec(s);
-    if (m) {
-      const [a, b] = order === 'dmy' ? [+m[2], +m[1]] : [+m[1], +m[2]];
-      const y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
-      const d = new Date(y, a - 1, b, +(m[4] || 0), +(m[5] || 0));
-      return isNaN(d) ? null : d;
-    }
-    const d = new Date(/^\d{4}-\d{2}-\d{2} \d/.test(s) ? s.replace(' ', 'T') : s);
-    return isNaN(d) ? null : d;
-  }
-
-  function platformOf(url, raw, fileName) {
-    const hay = `${url} ${raw} ${fileName}`.toLowerCase();
-    if (/instagram|\binsta|\big\b|reels?\b/.test(hay)) return 'instagram';
-    if (/tiktok/.test(hay)) return 'tiktok';
-    if (/youtu/.test(hay)) return 'youtube';
-    if (/facebook|fb\.watch|\bfb\b/.test(hay)) return 'facebook';
-    if (/twitter|\bx\.com/.test(hay)) return 'x';
-    return 'lainnya';
-  }
-
-  // ---------- baca file ----------
-  function parseDelimited(text, delim) {
-    const rows = [];
-    let row = [];
-    let cell = '';
-    let quoted = false;
-    for (let i = 0; i < text.length; i++) {
-      const ch = text[i];
-      if (quoted) {
-        if (ch === '"' && text[i + 1] === '"') {
-          cell += '"';
-          i++;
-        } else if (ch === '"') quoted = false;
-        else cell += ch;
-      } else if (ch === '"' && cell === '') quoted = true;
-      else if (ch === delim) {
-        row.push(cell);
-        cell = '';
-      } else if (ch === '\n' || ch === '\r') {
-        if (ch === '\r' && text[i + 1] === '\n') i++;
-        row.push(cell);
-        rows.push(row);
-        row = [];
-        cell = '';
-      } else cell += ch;
-    }
-    if (cell !== '' || row.length) {
-      row.push(cell);
-      rows.push(row);
-    }
-    return rows.filter((r) => r.some((c) => c.trim() !== ''));
-  }
-
-  async function readTable(file) {
-    const text = (await file.text()).replace(/^﻿/, '');
-    const ext = HTUtil.extName(file.name);
-    if (ext === 'json' || /^\s*[[{]/.test(text)) {
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (_) {
-        throw new Error('JSON tidak valid.');
-      }
-      const list = Array.isArray(data) ? data : data.posts || data.data || data.reels || data.videos || [];
-      if (!Array.isArray(list) || !list.length) throw new Error('JSON tidak berisi daftar post.');
-      const headers = [...new Set(list.flatMap((o) => Object.keys(o || {})))];
-      return [headers, ...list.map((o) => headers.map((h) => o?.[h] ?? ''))];
-    }
-    const firstLine = text.split(/\r?\n/, 1)[0];
-    const delim = ext === 'tsv' ? '\t' : [',', ';', '\t'].reduce((best, d) => (firstLine.split(d).length > firstLine.split(best).length ? d : best), ',');
-    return parseDelimited(text, delim);
-  }
-
-  async function readPosts(file) {
-    const rows = await readTable(file);
-    if (rows.length < 2) throw new Error('File tidak berisi data.');
-    const map = mapColumns(rows[0]);
-    if (map.views == null && map.likes == null) {
-      throw new Error('Kolom views/plays atau likes tidak ditemukan. Pastikan baris pertama berisi nama kolom.');
-    }
-    const body = rows.slice(1);
-    const cell = (r, f) => (map[f] == null ? '' : r[map[f]] ?? '');
-    const order = dateOrder(body.map((r) => cell(r, 'date')));
-
-    const posts = [];
-    for (const r of body) {
-      const p = {};
-      for (const m of METRICS) p[m] = parseNum(cell(r, m));
-      if (p.views == null && p.likes == null) continue; // baris keterangan di ekspor Meta
-      const d = parseDate(cell(r, 'date'), order);
-      let url = String(cell(r, 'url')).trim();
-      if (url && !/^https?:/i.test(url) && /^[\w-]{8,}$/.test(url)) url = `https://www.instagram.com/reel/${url}/`;
-      p.url = /^https?:\/\//i.test(url) ? url : '';
-      p.date = d ? d.toISOString() : '';
-      p.hasTime = !!d && (d.getHours() !== 0 || d.getMinutes() !== 0);
-      p.caption = String(cell(r, 'caption')).replace(/\s+/g, ' ').trim();
-      p.type = String(cell(r, 'type')).trim();
-      p.duration = parseDuration(cell(r, 'duration'));
-      p.platform = platformOf(p.url, cell(r, 'platform'), file.name);
-      posts.push(p);
-    }
-    if (!posts.length) throw new Error('Tidak ada baris post yang bisa dibaca.');
-    return posts;
-  }
 
   // ---------- hitung ----------
   function median(nums) {
@@ -246,16 +55,10 @@
       out.push(`Hari terbaik: <strong>${DAYS[best.key]}</strong>, median ${fmt(best.median)} ${metric} (${best.n} post, ${times(best.lift)} median keseluruhan).`);
     }
 
-    const hours = groupMedian(posts, (p) => (p.hasTime ? Math.floor(new Date(p.date).getHours() / 3) : null), med);
+    const hours = groupMedian(posts, (p) => (p.date ? Math.floor(new Date(p.date).getHours() / 3) : null), med);
     if (hours.length >= 2) {
       const h = hours[0].key * 3;
       out.push(`Jam unggah terbaik: <strong>${String(h).padStart(2, '0')}.00–${String(h + 3).padStart(2, '0')}.00</strong> (median ${fmt(hours[0].median)}, ${hours[0].n} post).`);
-    }
-
-    const LEN = [[0, 30, '< 30 detik'], [30, 45, '30–45 detik'], [45, 61, '45–60 detik'], [61, Infinity, '> 60 detik']];
-    const lens = groupMedian(posts, (p) => (p.duration ? LEN.findIndex(([a, b]) => p.duration >= a && p.duration < b) : null), med);
-    if (lens.length >= 2) {
-      out.push(`Durasi terbaik: <strong>${LEN[lens[0].key][2]}</strong>, median ${fmt(lens[0].median)} ${metric} (${lens[0].n} post).`);
     }
 
     const ers = posts.map(engagement).filter((n) => n != null);
@@ -264,10 +67,6 @@
       out.push(`Engagement tertinggi: <strong>${pct(engagement(byEr))}</strong> di “${escapeHtml(shortCaption(byEr, 60))}”.`);
     }
 
-    const plats = groupMedian(posts, (p) => p.platform, med);
-    if (plats.length >= 2) {
-      out.push(`Platform terkuat: <strong>${PLATFORMS[plats[0].key]}</strong>, median ${fmt(plats[0].median)} ${metric} per post.`);
-    }
     return out;
   }
 
@@ -375,29 +174,26 @@
       } catch (_) {
         posts = [];
       }
-      const state = { platform: 'all', range: 'all', sort: 'date', dir: -1, log: false };
+      // Semua data sekarang dari Instagram live; sisa impor file lama dibuang.
+      posts = posts.filter((p) => p.source === 'live');
+      const state = { range: 'all', sort: 'date', dir: -1, log: false };
       let live = null; // { key, lastAt, account }
       try {
         live = JSON.parse(localStorage.getItem(LIVE_KEY));
       } catch (_) {
         live = null;
       }
+      if (live && !posts.length) live.lastAt = null; // ambil ulang segera kalau riwayat kosong
       let liveBusy = false;
 
       el.innerHTML = `
         <div class="stack">
           ${HTUtil.block({
-            icon: 'upload',
-            title: 'Data post',
-            actions: `<button class="btn btn-ghost btn-sm" data-ref="export" hidden>${icon('download', 16)} CSV gabungan</button>
+            icon: 'chart',
+            title: 'Instagram',
+            actions: `<button class="btn btn-ghost btn-sm" data-ref="export" hidden>${icon('download', 16)} Unduh CSV</button>
                       <button class="btn btn-ghost btn-sm" data-ref="clear" hidden>${icon('trash', 16)} Hapus data</button>`,
-            body: `${HTUtil.dropzone({
-              accept: '.csv,.tsv,.json,.txt',
-              title: 'Tarik file ekspor ke sini',
-              sub: 'CSV/JSON dari Meta Business Suite, TikTok Studio, YouTube Studio, atau spreadsheet sendiri',
-            })}
-            <p class="help pulse-help">Kolom dikenali otomatis: tanggal, caption, link, views/plays, likes, comments, shares, saves, durasi. File baru digabung dengan data lama, dan post yang sama (link sama) diperbarui.</p>
-            <div data-ref="live"></div>
+            body: `<div data-ref="live"></div>
             <div data-ref="msg"></div>`,
           })}
           <div data-ref="dash"></div>
@@ -480,7 +276,7 @@
             fail = body.message || `Gagal mengambil data (HTTP ${res.status}).`;
             if (res.status === 401) live = null;
           } else {
-            const { added, updated } = mergePosts(posts, body.posts || []);
+            const { added, updated } = mergePosts(posts, (body.posts || []).map((p) => ({ ...p, source: 'live' })));
             live.lastAt = body.fetchedAt;
             live.account = body.account;
             save();
@@ -513,27 +309,6 @@
         $('msg').innerHTML = html ? `<div class="notice ${warn ? 'notice-warn' : 'notice-ok'}">${html}</div>` : '';
       }
 
-      async function onFiles(files) {
-        const notes = [];
-        let added = 0;
-        let updated = 0;
-        for (const f of files) {
-          try {
-            const r = mergePosts(posts, await readPosts(f));
-            added += r.added;
-            updated += r.updated;
-          } catch (err) {
-            notes.push(`${escapeHtml(f.name)}: ${escapeHtml(err.message)}`);
-          }
-        }
-        save();
-        const ok = added || updated ? `${added} post baru${updated ? `, ${updated} diperbarui` : ''}.` : '';
-        message([ok, ...notes].filter(Boolean).join('<br>'), notes.length > 0);
-        render();
-      }
-
-      const unbind = HTUtil.bindFileInput($('dropzone'), $('input'), onFiles);
-
       $('clear').addEventListener('click', () => {
         if (!confirm('Hapus semua data post yang tersimpan di browser ini?')) return;
         posts = [];
@@ -543,7 +318,7 @@
       });
 
       $('export').addEventListener('click', () => {
-        const cols = ['platform', 'date', 'caption', 'url', 'type', 'duration', ...METRICS];
+        const cols = ['date', 'caption', 'url', 'type', ...METRICS];
         const esc = (v) => (/[",\n]/.test(String(v ?? '')) ? `"${String(v).replace(/"/g, '""')}"` : v ?? '');
         const csv = [cols.join(','), ...posts.map((p) => cols.map((c) => esc(p[c])).join(','))].join('\n');
         HTUtil.downloadBlob(new Blob(['﻿' + csv], { type: 'text/csv' }), `performa-post-${HTUtil.today()}.csv`);
@@ -552,7 +327,6 @@
       function visible() {
         const since = state.range === 'all' ? 0 : Date.now() - Number(state.range) * 864e5;
         return posts
-          .filter((p) => state.platform === 'all' || p.platform === state.platform)
           .filter((p) => !since || (p.date && Date.parse(p.date) >= since))
           .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
       }
@@ -575,8 +349,6 @@
           return;
         }
 
-        const plats = [...new Set(posts.map((p) => p.platform))];
-        if (state.platform !== 'all' && !plats.includes(state.platform)) state.platform = 'all';
         const list = visible();
         const med = median(list.map(score));
         const hasViews = list.some((p) => p.views != null);
@@ -593,11 +365,6 @@
         dash.innerHTML = `
           <div class="stack">
             <div class="pulse-filters">
-              <label class="control control-select">${icon('layers', 18)}
-                <select data-ref="platform" aria-label="Platform">
-                  ${opt('all', 'Semua platform', state.platform)}${plats.map((p) => opt(p, PLATFORMS[p], state.platform)).join('')}
-                </select>
-              </label>
               <label class="control control-select">${icon('gauge', 18)}
                 <select data-ref="range" aria-label="Periode">
                   ${opt('all', 'Semua waktu', state.range)}${opt('7', '7 hari terakhir', state.range)}${opt('30', '30 hari terakhir', state.range)}${opt('90', '90 hari terakhir', state.range)}
@@ -645,7 +412,7 @@
                     const cap = escapeHtml(shortCaption(p));
                     return `<tr>
                       <td class="nowrap">${fdate(p.date)}</td>
-                      <td class="cap"><span class="plat">${PLATFORMS[p.platform]}</span>${p.url ? `<a href="${escapeHtml(p.url)}" target="_blank" rel="noopener">${cap}</a>` : cap}</td>
+                      <td class="cap">${p.type ? `<span class="plat">${escapeHtml(p.type)}</span>` : ''}${p.url ? `<a href="${escapeHtml(p.url)}" target="_blank" rel="noopener">${cap}</a>` : cap}</td>
                       <td class="num">${fmt(score(p))}</td>
                       <td class="num">${fmt(p.likes)}</td>
                       <td class="num">${fmt(p.comments)}</td>
@@ -658,10 +425,6 @@
             }
           </div>`;
 
-        dash.querySelector('[data-ref="platform"]').addEventListener('change', (e) => {
-          state.platform = e.target.value;
-          render();
-        });
         dash.querySelector('[data-ref="range"]').addEventListener('change', (e) => {
           state.range = e.target.value;
           render();
@@ -698,7 +461,7 @@
           }
           const p = list[+hit.dataset.i];
           hit.previousElementSibling.classList.add('is-hover');
-          tip.innerHTML = `<strong>${fmt(score(p))} ${hasViews ? 'views' : 'likes'}</strong><span>${fdate(p.date)} · ${PLATFORMS[p.platform]}</span><span>${escapeHtml(shortCaption(p, 70))}</span><span>${fmt(p.likes)} likes · ${fmt(p.comments)} komentar · ${pct(engagement(p))}</span>`;
+          tip.innerHTML = `<strong>${fmt(score(p))} ${hasViews ? 'views' : 'likes'}</strong><span>${fdate(p.date)}${p.type ? ` · ${escapeHtml(p.type)}` : ''}</span><span>${escapeHtml(shortCaption(p, 70))}</span><span>${fmt(p.likes)} likes · ${fmt(p.comments)} komentar · ${pct(engagement(p))}</span>`;
           tip.hidden = false;
           const box = host.getBoundingClientRect();
           const x = e.clientX - box.left;
@@ -735,7 +498,6 @@
       return () => {
         clearInterval(timer);
         document.removeEventListener('visibilitychange', tick);
-        unbind();
         resize?.disconnect();
       };
     },

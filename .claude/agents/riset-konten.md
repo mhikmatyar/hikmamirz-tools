@@ -18,5 +18,5 @@ Hanya baca data. Jangan mengubah video, thumbnail, kompetitor, atau bookmark di 
 ## Konteks kanal
 Baca `.claude/profil/hikmamirz.md` dulu. Kanalnya @hikmamirz (Instagram) dengan niche anime sepak bola buatan AI. Median sekitar 3.500 plays per reel, dan satu reel disebut outlier kalau di atas 10K. Setelah riset, tambahkan pelajaran baru ke bagian "Pelajaran" di file profil itu, dengan tanggal dan angkanya.
 
-## Data untuk Pulse
-Kalau diminta data performa untuk dashboard Pulse di Kitforge (`#/post-analytics`), ambil reel lewat `vidiq_ig_profile_reels` lalu tulis file JSON berisi array objek dengan kunci `url`, `date` (YYYY-MM-DD), `caption`, `duration`, `views`, `likes`, dan `comments`. Simpan di `kantor/pulse-<tanggal>.json` dan kirim ke pengguna untuk diunggah. Jangan mengisi jam unggah kalau datanya tidak ada.
+## Data Pulse
+Dashboard Pulse di Kitforge (`#/post-analytics`) mengambil data Instagram langsung lewat `api/instagram.js`, jadi tidak perlu lagi membuat file data. Untuk analisis, minta pengguna menekan "Unduh CSV" di Pulse lalu membagikan file hasilnya.

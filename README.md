@@ -15,7 +15,7 @@ Kumpulan tools yang berjalan langsung di browser (browser-native toolkit). Tidak
 
 **Content Lab**
 
-- **Pulse** (Post Analytics): dashboard performa post dari file ekspor CSV/JSON (Meta Business Suite, TikTok Studio, YouTube Studio, atau spreadsheet sendiri). Menampilkan ringkasan, grafik views per post dengan garis median, post yang menonjol (≥ 2× median), insight hari/jam/durasi terbaik, dan tabel yang bisa diurutkan. Data digabung antar-file dan disimpan di `localStorage` browser. Untuk Instagram, Pulse juga bisa mengambil data live lewat `api/instagram.js` (lihat [Pulse live](#pulse-live-instagram)).
+- **Pulse** (Post Analytics): dashboard performa post Instagram yang diambil langsung dari akun lewat `api/instagram.js` dan diperbarui tiap 15 menit (lihat [Pulse live](#pulse-live-instagram)). Menampilkan ringkasan, grafik views per post dengan garis median, post yang menonjol (≥ 2× median), insight hari dan jam unggah terbaik, serta tabel yang bisa diurutkan. Riwayat post disimpan di `localStorage` browser, jadi post lama tetap ada walaupun API hanya mengembalikan 30 post terbaru.
 
 Semua tool memproses banyak file sekaligus tanpa batas jumlah, lalu hasilnya bisa di-download per file atau dalam satu ZIP.
 
@@ -87,5 +87,4 @@ Tidak ada proses build, jadi cukup:
 
 - Token diperpanjang otomatis tiap Senin pukul 03.00 UTC oleh Vercel Cron (`vercel.json`). Kalau Pulse menampilkan "Token Instagram kedaluwarsa", buat token baru (langkah 3) lalu perbarui `IG_ACCESS_TOKEN` dan redeploy.
 - Token tidak pernah dikirim ke browser. Tanpa `PULSE_KEY` yang benar, endpoint menolak permintaan. Kunci disimpan di `localStorage` browser yang dipakai untuk menyambungkan, dan klik Putuskan untuk menghapusnya.
-- Durasi video tidak tersedia di API. Kalau pernah diunggah lewat file ekspor, durasinya tetap disimpan.
 - Untuk mencoba secara lokal: `IG_ACCESS_TOKEN=... PULSE_KEY=... node scripts/serve.js`. Server development juga menjalankan `api/*.js`.
