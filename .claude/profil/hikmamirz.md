@@ -30,3 +30,10 @@ Sumber: 12 reel terbaru di Instagram @hikmamirz (17–29 September 2026), diambi
 - Polanya: **format tren viral** (duet menyanyi berlatar oranye, car sing) + **tokoh lokal Indonesia** (Persib, Persija, Marselino, STY) + caption bahasa Indonesia + CTA "Comment PROMPT" untuk DM + durasi 15–29 detik + diunggah di hari yang sama dengan berita.
 - Tren yang sama dengan tokoh global saja (Mourinho, Raphinha) hanya 2–3K. Artinya yang menang adalah **tren + kedekatan lokal**, bukan salah satunya saja.
 - Konten Timnas mereka 13–55K, sedangkan @hikmamirz 0,7–2,4K. Dugaan kuat: audiens mereka memang Indonesia dan bahasanya cocok.
+
+## Pembanding: @leonrdewa (dicek 29 September 2026 lewat vidIQ)
+- 140,1K followers, centang biru. 10 reel bola terakhir: median sekitar **395K plays**, rentang 65K–998K. Dua reel tutorial AI (bukan bola) hanya 0,9K–6,9K.
+- Formula: **komedi dialog pelatih vs pemain** (Flick "target 10 gol", Kompany, Pérez–Mourinho, Carrick), berdasarkan hasil pertandingan nyata 1–2 hari sebelumnya, subtitle dialog di layar, durasi 78–91 detik, caption bahasa Inggris dengan punchline + skor + pertanyaan penutup. Klub raksasa Eropa (Barça, Madrid, United, Bayern) dan timnas.
+- Topik yang sama dengan @hikmamirz: Klopp vs Gakpo (Belanda–Jerman) di akunnya 219K, di @hikmamirz 148K. Topiknya sudah tepat, beda di jangkauan akun dan bentuk komedinya.
+- Indonesia vs Malaysia dalam bahasa Inggris tetap 65,6K, jadi topik Indonesia masih bisa jalan di akun berbahasa Inggris kalau dikemas sebagai komedi pertandingan.
+- Monetisasi terlihat dari bio: partnership tool AI (Higgsfield, Thankyou AI, Creatify, ComfyUI, Zyka) + link afiliasi Higgsfield. Beberapa reel juga memakai tag @fishcreative.hq.
