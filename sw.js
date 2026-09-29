@@ -1,9 +1,11 @@
 /**
  * Service worker:
- * - File aplikasi: stale-while-revalidate (tampil instan dari cache, diperbarui di belakang).
+ * - File aplikasi: network-first, supaya update langsung terlihat. Cache hanya dipakai saat offline
+ *   atau jaringan lambat (lebih dari 3 detik).
  * - Library CDN dan font: cache-first. URL library memakai versi tetap, jadi aman disimpan lama.
  */
-const APP_CACHE = 'ht-app-v1';
+const APP_CACHE = 'ht-app-v2';
+const NETWORK_TIMEOUT = 3000;
 const LIB_CACHE = 'ht-lib-v1';
 const LIB_HOSTS = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -40,18 +42,20 @@ self.addEventListener('fetch', (e) => {
   if (url.origin === self.location.origin) {
     e.respondWith(
       caches.open(APP_CACHE).then(async (cache) => {
-        const hit = await cache.match(req, { ignoreSearch: true });
-        const network = fetch(req)
-          .then((res) => {
-            if (res.ok) cache.put(req, res.clone());
-            return res;
-          })
-          .catch(() => hit);
-        if (hit) {
-          e.waitUntil(network);
-          return hit;
+        const network = fetch(req).then((res) => {
+          if (res.ok) cache.put(req, res.clone());
+          return res;
+        });
+        e.waitUntil(network.catch(() => {}));
+        const slow = new Promise((resolve) => setTimeout(resolve, NETWORK_TIMEOUT));
+        try {
+          const res = await Promise.race([network, slow]);
+          if (res) return res;
+        } catch (_) {
+          /* offline: pakai cache */
         }
-        return network;
+        const hit = await cache.match(req, { ignoreSearch: true });
+        return hit || network;
       })
     );
   }
