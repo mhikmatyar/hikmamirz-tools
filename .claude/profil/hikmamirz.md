@@ -24,3 +24,9 @@ Sumber: 12 reel terbaru di Instagram @hikmamirz (17–29 September 2026), diambi
 - Kalimat pembuka yang pendek dan terpotong-potong di caption ("90+ minutes. Germany leads 1–0.") cocok dengan gaya kanal.
 - Konten Timnas Indonesia menarik secara lokal tapi performanya rendah di akun berbahasa Inggris. Uji caption bilingual atau akun/platform terpisah (TikTok ID) sebelum menyimpulkan.
 - Rasio like/plays yang tinggi (8–10%) terjadi di cerita emosional, bukan di komedi.
+
+## Pembanding: @plesbol_anime (dicek 29 September 2026 lewat vidIQ)
+- 6,5K followers (hampir sama dengan @hikmamirz), tapi median 12 reel terakhir sekitar **17K plays** (sekitar 5x lipat). Reel terbesar: Benzema + pemain Persib "join the trend" 456K, Marselino & Coach Shin 168K.
+- Polanya: **format tren viral** (duet menyanyi berlatar oranye, car sing) + **tokoh lokal Indonesia** (Persib, Persija, Marselino, STY) + caption bahasa Indonesia + CTA "Comment PROMPT" untuk DM + durasi 15–29 detik + diunggah di hari yang sama dengan berita.
+- Tren yang sama dengan tokoh global saja (Mourinho, Raphinha) hanya 2–3K. Artinya yang menang adalah **tren + kedekatan lokal**, bukan salah satunya saja.
+- Konten Timnas mereka 13–55K, sedangkan @hikmamirz 0,7–2,4K. Dugaan kuat: audiens mereka memang Indonesia dan bahasanya cocok.
