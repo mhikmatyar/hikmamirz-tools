@@ -13,6 +13,10 @@ Kumpulan tools yang berjalan langsung di browser (browser-native toolkit). Tidak
 
 - **Markflow** (Document → Markdown): ubah DOCX, PDF, HTML, CSV/TSV, dan TXT ke Markdown. Judul, list, tabel, bold/italic, dan link ikut terbawa. Hasil bisa dilihat, disalin, atau di-download.
 
+**Content Lab**
+
+- **Pulse** (Post Analytics): dashboard performa post dari file ekspor CSV/JSON (Meta Business Suite, TikTok Studio, YouTube Studio, atau spreadsheet sendiri). Menampilkan ringkasan, grafik views per post dengan garis median, post yang menonjol (≥ 2× median), insight hari/jam/durasi terbaik, dan tabel yang bisa diurutkan. Data digabung antar-file dan disimpan di `localStorage` browser, jadi tidak pernah dikirim ke server.
+
 Semua tool memproses banyak file sekaligus tanpa batas jumlah, lalu hasilnya bisa di-download per file atau dalam satu ZIP.
 
 Markflow memuat library dari CDN jsDelivr saat pertama dipakai (Mammoth untuk DOCX, pdf.js untuk PDF, Turndown untuk HTML), jadi butuh koneksi internet. Isi file tetap diproses di browser dan tidak dikirim ke mana pun.
