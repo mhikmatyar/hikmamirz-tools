@@ -21,6 +21,19 @@ const TYPES = {
 http
   .createServer((req, res) => {
     const urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    // Jalankan Vercel Function (api/*.js) secara lokal, dengan environment dari shell.
+    if (urlPath.startsWith('/api/')) {
+      const fn = path.join(root, urlPath.replace(/\/$/, '') + '.js');
+      if (!fn.startsWith(path.join(root, 'api')) || !fs.existsSync(fn)) {
+        res.writeHead(404).end('Not found');
+        return;
+      }
+      Promise.resolve(require(fn)(req, res)).catch((err) => {
+        console.error(err);
+        if (!res.headersSent) res.writeHead(500).end('Function error');
+      });
+      return;
+    }
     let file = path.join(root, urlPath);
     if (!file.startsWith(root)) {
       res.writeHead(403).end();
