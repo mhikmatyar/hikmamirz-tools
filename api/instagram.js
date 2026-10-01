@@ -9,6 +9,7 @@
  *   IG_GRAPH_VERSION opsional. Versi Graph API, bawaan v23.0.
  *
  * GET /api/instagram                → { fetchedAt, cached, account, posts }
+ *                                     Reels juga membawa watch (rata-rata ditonton, detik) dan skip (skip rate, 0–1).
  * GET /api/instagram?refresh_token  → perpanjang masa berlaku token (hanya dari Vercel Cron)
  */
 const crypto = require('crypto');
@@ -19,10 +20,12 @@ const TTL = 10 * 60 * 1000; // hasil disimpan 10 menit supaya tidak menabrak bat
 const MIN_FORCE = 60 * 1000;
 const LIMIT = 30; // insight diambil untuk 30 post terbaru
 const METRICS = ['views', 'reach', 'saved', 'shares'];
+const REEL_METRICS = ['ig_reels_avg_watch_time', 'reels_skip_rate']; // hanya ada di Reels
 
 const TYPES = { IMAGE: 'Foto', VIDEO: 'Video', CAROUSEL_ALBUM: 'Carousel' };
 
 let cache = null; // { at, data } — bertahan selama instance function masih hangat
+let reelMetrics = REEL_METRICS;
 
 function safeEqual(a, b) {
   const x = Buffer.from(String(a));
@@ -53,23 +56,35 @@ async function graph(path, params = {}) {
 
 const valuesOf = (r) => Object.fromEntries((r.data || []).map((d) => [d.name, d.values?.[0]?.value ?? d.total_value?.value ?? null]));
 
-// Tidak semua jenis post punya semua metrik. Kalau satu ditolak, ambil per metrik supaya yang lain tetap dapat.
-async function insightsFor(id) {
+async function tryInsights(id, metrics) {
   try {
-    return valuesOf(await graph(`/${id}/insights`, { metric: METRICS.join(',') }));
+    return valuesOf(await graph(`/${id}/insights`, { metric: metrics.join(',') }));
   } catch (err) {
     if (err.code === 190) throw err;
+    return { failed: err.code };
   }
-  const out = {};
-  for (const metric of METRICS) {
-    try {
-      Object.assign(out, valuesOf(await graph(`/${id}/insights`, { metric })));
-    } catch (err) {
-      if (err.code === 190) throw err;
-    }
+}
+
+// Tidak semua jenis post punya semua metrik. Kalau satu ditolak, ambil per metrik supaya yang lain tetap dapat.
+async function insightsFor(m) {
+  const reel = m.media_product_type === 'REELS' ? [...reelMetrics] : [];
+  const all = await tryInsights(m.id, [...METRICS, ...reel]);
+  if (!('failed' in all)) return all;
+
+  let out = reel.length ? await tryInsights(m.id, METRICS) : all;
+  const rest = 'failed' in out ? [...METRICS, ...reel] : reel;
+  if ('failed' in out) out = {};
+  for (const metric of rest) {
+    const one = await tryInsights(m.id, [metric]);
+    if (!('failed' in one)) Object.assign(out, one);
+    // Metrik Reel yang ditolak API (kode 100) tidak diminta lagi, supaya tidak memboroskan jatah panggilan.
+    else if (one.failed === 100 && reel.includes(metric)) reelMetrics = reelMetrics.filter((x) => x !== metric);
   }
   return out;
 }
+
+// Instagram bisa mengirim skip rate sebagai persen (48.1) atau pecahan (0.481); Pulse memakai pecahan.
+const fraction = (v) => (v == null ? null : v > 1 ? v / 100 : v);
 
 async function mapLimit(items, n, fn) {
   const out = new Array(items.length);
@@ -94,7 +109,7 @@ async function load() {
     }),
   ]);
   const list = media.data || [];
-  const insights = await mapLimit(list, 5, (m) => insightsFor(m.id));
+  const insights = await mapLimit(list, 5, insightsFor);
   return {
     fetchedAt: new Date().toISOString(),
     account: { username: me.username, followers: me.followers_count ?? null, mediaCount: me.media_count ?? null },
@@ -111,6 +126,8 @@ async function load() {
       comments: m.comments_count ?? null,
       shares: insights[i].shares ?? null,
       saves: insights[i].saved ?? null,
+      watch: insights[i].ig_reels_avg_watch_time != null ? insights[i].ig_reels_avg_watch_time / 1000 : null, // detik
+      skip: fraction(insights[i].reels_skip_rate),
     })),
   };
 }

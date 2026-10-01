@@ -16,9 +16,9 @@ Kumpulan tools yang berjalan langsung di browser (browser-native toolkit). Tidak
 **Content Lab**
 
 - **Pulse** (Post Analytics): dashboard performa post Instagram yang diambil langsung dari akun lewat `api/instagram.js` dan diperbarui tiap 15 menit (lihat [Pulse live](#pulse-live-instagram)). Isinya:
-  - ringkasan (followers dan pertumbuhan 7 hari, median views, engagement, share rate);
+  - ringkasan (followers dan pertumbuhan 7 hari, median views, engagement, share rate, skip rate, durasi ditonton);
   - grafik views per post, dengan post ≥ 2× median ditandai;
-  - insight otomatis: kecepatan awal post terbaru dibanding biasanya, share/save rate, jangkauan di luar followers, rewatch, serta hari dan jam terbaik;
+  - insight otomatis: kecepatan awal post terbaru dibanding biasanya, share/save rate, skip rate, jangkauan di luar followers, rewatch, serta hari dan jam terbaik;
   - **Kelompok post**, dengan tab **Topik** dan **Tool / Sponsor**. Post dikelompokkan dari kata kunci di caption, dengan saran Lanjutkan / Uji lagi / Kurangi. Tool/sponsor dikenali dari penyebutan seperti "Created with @syntx_global"; post tanpa tool masuk "Tidak ada sponsor" sebagai pembanding. Aturan tiap tab bisa diubah lewat "Atur topik" / "Atur tool", dan klik nama kelompok untuk memfilter tabel post;
   - grafik pertumbuhan followers;
   - tabel semua post dengan ikon detail. Panel detail menampilkan semua angka, rasio dibanding median, topik, dan kurva views sejak diunggah.
@@ -72,7 +72,7 @@ Tidak ada proses build, jadi cukup:
 
 ## Pulse live (Instagram)
 
-`api/instagram.js` adalah Vercel Function yang mengambil 30 post terbaru beserta insight-nya (views, reach, likes, komentar, shares, saves) lewat Instagram API with Instagram Login. Pulse memanggilnya tiap 15 menit selama halaman terbuka. Hasilnya di-cache 10 menit di server supaya tetap jauh di bawah batas ±200 panggilan per jam.
+`api/instagram.js` adalah Vercel Function yang mengambil 30 post terbaru beserta insight-nya (views, reach, likes, komentar, shares, saves, dan untuk Reels: skip rate serta rata-rata durasi ditonton) lewat Instagram API with Instagram Login. Pulse memanggilnya tiap 15 menit selama halaman terbuka. Hasilnya di-cache 10 menit di server supaya tetap jauh di bawah batas ±200 panggilan per jam.
 
 ### Setup (sekali saja)
 

@@ -52,6 +52,9 @@
     share: { label: 'Share rate', hint: 'shares ÷ views, sinyal konten menyebar', fn: (p) => ratio(p.shares, p.views), pct: true },
     save: { label: 'Save rate', hint: 'saves ÷ views, sinyal konten layak ditonton ulang', fn: (p) => ratio(p.saves, p.views), pct: true },
     rewatch: { label: 'Rewatch', hint: 'views ÷ reach, rata-rata ditonton berapa kali per akun', fn: (p) => ratio(p.views, p.reach), pct: false },
+    // Hanya ada di Reels. Skip rate makin rendah makin baik.
+    skip: { label: 'Skip rate', hint: 'bagian views yang dilewati dalam 3 detik pertama; makin rendah makin baik', fn: (p) => p.skip ?? null, pct: true, lowerBetter: true },
+    watch: { label: 'Rata-rata ditonton', hint: 'rata-rata lama Reel diputar per view', fn: (p) => p.watch ?? null, show: (v) => secs(v) },
   };
   const engagement = RATES.er.fn;
   const score = (p) => (p.views != null ? p.views : p.likes); // ukuran utama kalau views kosong
@@ -61,7 +64,8 @@
   const fmt = (n) => (n == null ? '–' : Math.abs(n) >= 10000 ? cf.format(n) : nf.format(Math.round(n)));
   const times = (n) => (n == null ? '–' : n.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: 1 }) + '×');
   const pct = (n) => (n == null ? '–' : (n * 100).toLocaleString('id-ID', { maximumFractionDigits: n < 0.01 ? 2 : 1 }) + '%');
-  const rateText = (key, v) => (RATES[key].pct ? pct(v) : times(v));
+  const secs = (n) => (n == null ? '–' : n.toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' dtk');
+  const rateText = (key, v) => (RATES[key].show || (RATES[key].pct ? pct : times))(v);
   const fdate = (iso) => (iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: '2-digit' }) : '–');
   const fdatetime = (iso) =>
     iso ? new Date(iso).toLocaleString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '–';
@@ -136,7 +140,7 @@
         else if (lift >= 1.3 || (lift >= 1 && shareMed && share >= shareMed * 1.5)) verdict = { label: 'Lanjutkan', cls: 'badge-good' };
         else if (lift <= 0.7) verdict = { label: 'Kurangi', cls: 'badge-warn' };
         else verdict = { label: 'Uji lagi', cls: '' };
-        return { name, n: ps.length, median: m, lift, share, save: median(ps.map(RATES.save.fn)), er: median(ps.map(engagement)), verdict };
+        return { name, n: ps.length, median: m, lift, share, save: median(ps.map(RATES.save.fn)), skip: median(ps.map(RATES.skip.fn)), er: median(ps.map(engagement)), verdict };
       })
       .sort((a, b) => (a.name === fallback) - (b.name === fallback) || b.median - a.median);
   }
@@ -277,6 +281,20 @@
     if (rw) {
       const byRw = best('rewatch');
       out.push(`Rewatch median <strong>${times(rw)}</strong> views per akun. Tertinggi ${times(RATES.rewatch.fn(byRw))} di ${link(byRw, 40)}; loop dan hook di video ini layak ditiru.`);
+    }
+
+    const skipped = list.filter((p) => p.skip != null && score(p) != null);
+    if (skipped.length >= 4) {
+      const skipMed = median(skipped.map((p) => p.skip));
+      const low = median(skipped.filter((p) => p.skip < skipMed).map(score));
+      const high = median(skipped.filter((p) => p.skip >= skipMed).map(score));
+      const lowest = [...skipped].sort((a, b) => a.skip - b.skip)[0];
+      if (low != null)
+        out.push(
+        `Skip rate median <strong>${pct(skipMed)}</strong>. Reel dengan skip rate di bawah itu punya median ${fmt(low)} ${metric}${
+          high ? `, <strong>${times(low / high)}</strong> Reel lainnya (${fmt(high)})` : ''
+          }. Terendah ${pct(lowest.skip)} di ${link(lowest, 40)}; 3 detik pertamanya layak ditiru.`
+        );
     }
 
     const days = groupMedian(list, (p) => (p.date ? new Date(p.date).getDay() : null), med);
@@ -607,9 +625,11 @@
       });
 
       $('export').addEventListener('click', () => {
-        const cols = ['date', 'caption', 'url', 'type', ...METRICS, 'share_rate', 'save_rate', 'rewatch', 'topics', 'tools'];
+        const cols = ['date', 'caption', 'url', 'type', ...METRICS, 'share_rate', 'save_rate', 'rewatch', 'skip_rate', 'avg_watch_sec', 'topics', 'tools'];
         const row = (p) => ({
           ...p,
+          skip_rate: p.skip,
+          avg_watch_sec: p.watch,
           share_rate: RATES.share.fn(p),
           save_rate: RATES.save.fn(p),
           rewatch: RATES.rewatch.fn(p),
@@ -638,14 +658,16 @@
         const snapAge = lastSnap && (Date.parse(lastSnap[0]) - Date.parse(p.date)) / HOUR;
         const viewsBandAtAge = young && lastSnap ? typicalBand(peers.map((q) => viewsAt(hist.snaps[postKey(q)], q, snapAge))) : null;
 
-        const indicator = (v, band, show, note = '') => {
+        // lowerBetter: warna dibalik (lebih rendah = baik), label dan panahnya tetap apa adanya.
+        const indicator = (v, band, show, note = '', lowerBetter = false) => {
           const l = levelOf(v, band);
           if (!l) return { cls: '', html: `<span class="dim">${v == null ? '&nbsp;' : 'Belum cukup post pembanding'}</span>` };
           const L = LEVELS[l];
+          const cls = lowerBetter && l !== 'normal' ? LEVELS[l === 'up' ? 'down' : 'up'].cls : L.cls;
           return {
             l,
-            cls: L.cls,
-            html: `<span class="pd-level ${L.cls}">${icon(L.icon, 14)} ${L.label}</span><span class="dim">Biasanya ${show(band.lo)}–${show(band.hi)}${note}</span>`,
+            cls,
+            html: `<span class="pd-level ${cls}">${icon(L.icon, 14)} ${L.label}</span><span class="dim">Biasanya ${show(band.lo)}–${show(band.hi)}${note}</span>`,
           };
         };
         const card = (label, value, ind, title = '') =>
@@ -664,7 +686,7 @@
         };
         const rate = (key) => {
           const show = (v) => rateText(key, v);
-          const ind = indicator(RATES[key].fn(p), typicalBand(peers.map(RATES[key].fn)), show);
+          const ind = indicator(RATES[key].fn(p), typicalBand(peers.map(RATES[key].fn)), show, '', RATES[key].lowerBetter);
           levels[key] = ind.l;
           return card(RATES[key].label, show(RATES[key].fn(p)), ind, RATES[key].hint);
         };
@@ -672,6 +694,7 @@
         const reachFInd = indicator(reachF, typicalBand(peers.map((q) => (q.reach != null && followers ? q.reach / followers : null))), times);
         const metricCards = ['Views:views', 'Reach:reach', 'Likes:likes', 'Komentar:comments', 'Shares:shares', 'Saves:saves'].map((s) => metric(...s.split(':'))).join('');
         const rateCards = ['er', 'share', 'save', 'rewatch'].map(rate).join('');
+        const retentionCards = p.skip != null || p.watch != null ? ['skip', 'watch'].map(rate).join('') : '';
         const head = levels.views || levels.reach;
         const peerType = peers.length && peers.every((q) => q.type === p.type) && p.type ? `${p.type} ` : 'post ';
         const milestones = [1, 3, 24]
@@ -721,6 +744,7 @@
               ${card('Reach vs followers', times(reachF), reachFInd.cls ? reachFInd : { cls: '', html: `<span class="dim">${reachF == null ? '&nbsp;' : reachF > 1 ? 'menembus non-follower' : 'sebatas followers'}</span>` }, 'reach ÷ followers; di atas 1× berarti menjangkau non-follower')}
               ${card('vs median views', times(med ? score(p) / med : null), { cls: '', html: `<span class="dim">median ${fmt(med)}</span>` })}
             </div>
+            ${retentionCards ? `<h3>Retensi</h3><div class="stats pd-stats">${retentionCards}</div>` : ''}
             <h3>Kecepatan awal</h3>
             ${
               snaps?.length >= 2
@@ -770,6 +794,8 @@
           comments: (p) => p.comments ?? -1,
           shares: (p) => p.shares ?? -1,
           saves: (p) => p.saves ?? -1,
+          skip: (p) => p.skip ?? -1,
+          watch: (p) => p.watch ?? -1,
           er: (p) => engagement(p) ?? -1,
         }[state.sort];
         return [...list].sort((a, b) => (val(a) < val(b) ? -1 : val(a) > val(b) ? 1 : 0) * state.dir);
@@ -800,8 +826,9 @@
         const tableList = state.filter ? list.filter((p) => groupsOf(p, state.filter.kind).includes(state.filter.name)) : list;
         const isActive = (name) => state.filter?.kind === state.group && state.filter.name === name;
         const shareMed = median(list.map(RATES.share.fn));
+        const hasRetention = list.some((p) => p.skip != null || p.watch != null);
 
-        const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${label}</option>`;
+        const opt =(v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${label}</option>`;
         const th = (key, label, num) =>
           `<th${num ? ' class="num"' : ''}><button data-sort="${key}" aria-sort="${state.sort === key ? (state.dir > 0 ? 'ascending' : 'descending') : 'none'}">${label}${
             state.sort === key ? (state.dir > 0 ? ' ↑' : ' ↓') : ''
@@ -831,6 +858,12 @@
               <div class="stat"><span class="stat-label">Median per post</span><span class="stat-val">${fmt(med)}</span></div>
               <div class="stat"><span class="stat-label">Rata-rata engagement</span><span class="stat-val">${pct(ers.length ? ers.reduce((a, b) => a + b, 0) / ers.length : null)}</span></div>
               <div class="stat"><span class="stat-label">Median share rate</span><span class="stat-val">${pct(shareMed)}</span></div>
+              ${
+                hasRetention
+                  ? `<div class="stat" title="${escapeHtml(RATES.skip.hint)}"><span class="stat-label">Median skip rate</span><span class="stat-val">${pct(median(list.map(RATES.skip.fn)))}</span></div>
+              <div class="stat" title="${escapeHtml(RATES.watch.hint)}"><span class="stat-label">Median ditonton</span><span class="stat-val">${secs(median(list.map(RATES.watch.fn)))}</span></div>`
+                  : ''
+              }
             </div>
             ${HTUtil.block({
               icon: 'gauge',
@@ -865,7 +898,7 @@
                   </div>
                 </div>
                 <div class="pulse-table-wrap"><table class="pulse-table pulse-topics">
-                  <thead><tr><th>${G.label}</th><th class="num">Post</th><th class="num">Median views</th><th class="num">vs median</th><th class="num">Share rate</th><th class="num">Save rate</th><th>Saran</th></tr></thead>
+                  <thead><tr><th>${G.label}</th><th class="num">Post</th><th class="num">Median views</th><th class="num">vs median</th><th class="num">Share rate</th><th class="num">Save rate</th>${hasRetention ? '<th class="num">Skip rate</th>' : ''}<th>Saran</th></tr></thead>
                   <tbody>${groupRows
                     .map(
                       (t) => `<tr class="${isActive(t.name) ? 'is-active' : ''}">
@@ -875,6 +908,7 @@
                         <td class="num">${times(t.lift)}</td>
                         <td class="num">${pct(t.share)}</td>
                         <td class="num">${pct(t.save)}</td>
+                        ${hasRetention ? `<td class="num">${pct(t.skip)}</td>` : ''}
                         <td><span class="badge ${t.verdict.cls}">${t.verdict.label}</span></td>
                       </tr>`
                     )
@@ -906,7 +940,7 @@
                   'comments',
                   'Komentar',
                   true
-                )}${th('shares', 'Shares', true)}${th('saves', 'Saves', true)}${th('er', 'Engagement', true)}<th class="num">vs median</th><th><span class="sr-only">Detail</span></th></tr></thead>
+                )}${th('shares', 'Shares', true)}${th('saves', 'Saves', true)}${hasRetention ? th('skip', 'Skip rate', true) + th('watch', 'Ditonton', true) : ''}${th('er', 'Engagement', true)}<th class="num">vs median</th><th><span class="sr-only">Detail</span></th></tr></thead>
                 <tbody>${sorted(tableList)
                   .map((p) => {
                     const lift = med ? score(p) / med : null;
@@ -921,6 +955,7 @@
                       <td class="num">${fmt(p.comments)}</td>
                       <td class="num">${fmt(p.shares)}</td>
                       <td class="num">${fmt(p.saves)}</td>
+                      ${hasRetention ? `<td class="num">${pct(p.skip)}</td><td class="num nowrap">${secs(p.watch)}</td>` : ''}
                       <td class="num">${pct(engagement(p))}</td>
                       <td class="num">${badge}</td>
                       <td><button class="icon-btn" data-detail="${key}" aria-label="Detail post" title="Detail">${icon('eye', 18)}</button></td>
