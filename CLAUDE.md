@@ -34,4 +34,5 @@ Perbarui profil ini kalau ada data baru (harga berubah, hasil riset konten terba
 
 - Tindakan keluar (publish, jadwal posting, kirim pesan, ubah data di vidIQ/Typefully/Windsor/Drive, deploy, push) selalu minta konfirmasi dulu.
 - Dokumen klien disimpan di `kantor/`, yang sudah di-gitignore. Jangan commit data klien.
+- Paket video kanal (riset, skrip, prompt, caption) disimpan di `konten/video/` dan ikut di-commit.
 - Jangan mengarang angka, harga, atau data klien. Tandai yang kosong dengan `[ISI: ...]`.

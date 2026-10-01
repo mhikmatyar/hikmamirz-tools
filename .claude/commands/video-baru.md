@@ -16,6 +16,6 @@ Langkah-langkahnya berurutan, karena tiap langkah memakai hasil langkah sebelumn
 4. **Promosi** (agent `sosmed-manager`): buat caption Instagram/TikTok dan teks promosi untuk platform lain. Tulis sebagai teks saja. Jangan buat draf Typefully sebelum pengguna setuju.
 
 Setelah selesai:
-- Simpan seluruh paket ke `kantor/video/<YYYY-MM-DD>-<slug-judul>.md` (folder `kantor/` di-gitignore).
+- Simpan seluruh paket ke `konten/video/<YYYY-MM-DD>-<slug-judul>.md`. Folder ini ikut di-commit, jadi jangan masukkan data klien.
 - Rangkum hasilnya dalam Bahasa Indonesia: ide terpilih, hook terbaik, judul terbaik, dan caption.
 - Tanyakan apakah pengguna mau membuat draf di Typefully. Jangan memublikasikan, menjadwalkan, atau mengunggah apa pun tanpa konfirmasi.
