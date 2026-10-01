@@ -37,3 +37,10 @@ Sumber: 12 reel terbaru di Instagram @hikmamirz (17–29 September 2026), diambi
 - Topik yang sama dengan @hikmamirz: Klopp vs Gakpo (Belanda–Jerman) di akunnya 219K, di @hikmamirz 148K. Topiknya sudah tepat, beda di jangkauan akun dan bentuk komedinya.
 - Indonesia vs Malaysia dalam bahasa Inggris tetap 65,6K, jadi topik Indonesia masih bisa jalan di akun berbahasa Inggris kalau dikemas sebagai komedi pertandingan.
 - Monetisasi terlihat dari bio: partnership tool AI (Higgsfield, Thankyou AI, Creatify, ComfyUI, Zyka) + link afiliasi Higgsfield. Beberapa reel juga memakai tag @fishcreative.hq.
+
+## Riset 1 Oktober 2026: parodi "Ronaldo keluar dari kamp Portugal"
+- Berita nyata (30 Sep 2026): Ronaldo meninggalkan kamp Portugal di Kopenhagen setelah Jorge Jesus bilang ia tidak akan dimainkan sejak awal melawan Denmark (Nations League, 1 Okt). Sumber: ESPN, Sky Sports News, Flashscore, ECO/Sapo.
+- Kata kunci YouTube "Ronaldo leaves Portugal camp" dalam 24 jam: Sky Sports News 188K views (1:08), ESPN FC 44,6K, sejumlah reaction video 12–46K. Belum ditemukan parodi AI/anime yang outlier untuk topik ini, jadi ada celah untuk masuk lebih dulu.
+- Format parodi AI "konfrontasi pelatih vs pemain" sedang outlier: @0x.diablo (anime, pelatih terus menaikkan target gol) 4M (21,2x median), @nescalingai "YOU'RE NOT LEAVING" 3,6M (5,1x), @balltime_ai 3M (13x), @nescaling.ai 1M (3,1x).
+- Narasi "Ronaldo dibangkucadangkan" sendiri sudah outlier: @bnzttk01 "Ronaldo on the bench today" 1,4M (21,8x). Lelucon 1000 gol juga masih jalan (@linquito 4,2M, 11,7x; @alichaban7 1,9M, 56,6x).
+- Pelajaran: komedi bisa jalan untuk @hikmamirz kalau berupa **dialog konflik pelatih vs pemain yang terikat berita nyata dalam 24 jam** (pola @leonrdewa), bukan satir umum. Hasil reel parodi ini: [ISI: plays setelah diunggah].
