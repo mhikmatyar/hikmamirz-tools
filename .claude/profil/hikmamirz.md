@@ -7,6 +7,7 @@ Sumber: 12 reel terbaru di Instagram @hikmamirz (17–29 September 2026), diambi
 - Tim yang sering muncul: Liverpool, Timnas Indonesia, dan tim nasional di turnamen internasional.
 - Format: Reels vertikal 30–68 detik. Caption berbahasa Inggris, watermark @hikmamirz, posting hampir setiap hari.
 - Tools: PixVerse, Syntx (sponsor, kode promo **MIRZA15** untuk diskon 15%), Flova.ai.
+- Sponsor AIreel (@aireelai, @aireel.creatorhub): kode promo **GVSDM3PT** untuk diskon 15%. Format promo di caption: "15% OFF / Use Code: GVSDM3PT / Link in bio", lalu tag kedua akun, tanpa emoji.
 
 ## Performa (12 reel, median sekitar 3.500 plays)
 | Reel | Plays | Likes | Pola |
