@@ -37,3 +37,8 @@ Sumber: 12 reel terbaru di Instagram @hikmamirz (17–29 September 2026), diambi
 - Topik yang sama dengan @hikmamirz: Klopp vs Gakpo (Belanda–Jerman) di akunnya 219K, di @hikmamirz 148K. Topiknya sudah tepat, beda di jangkauan akun dan bentuk komedinya.
 - Indonesia vs Malaysia dalam bahasa Inggris tetap 65,6K, jadi topik Indonesia masih bisa jalan di akun berbahasa Inggris kalau dikemas sebagai komedi pertandingan.
 - Monetisasi terlihat dari bio: partnership tool AI (Higgsfield, Thankyou AI, Creatify, ComfyUI, Zyka) + link afiliasi Higgsfield. Beberapa reel juga memakai tag @fishcreative.hq.
+
+## Catatan riset: TopMediai AI Dance MV Challenge (1 Oktober 2026)
+- Halaman challenge (topmediai.com) diblokir proxy, dan kredit vidIQ habis. Aturan resmi serta data outlier dance + bola + anime belum terverifikasi: [ISI: aturan resmi challenge, data outlier dari vidIQ setelah kredit diisi ulang].
+- Dari web (belum ada angka plays): selebrasi "Kakalika" (DopeNation) dipakai banyak pemain sepanjang 2026, antara lain Yamal/Balde, Osula, Thierno Barry, PSG, dan Arsenal Women. Lagunya berhak cipta, jadi untuk challenge hanya boleh dipakai sebagai referensi gerakan. Lagu tetap wajib dibuat di TopMediai.
+- Hipotesis yang perlu diuji: dance MV tetap butuh busur emosional (pola pemenang kanal ini), dengan tarian sebagai klimaks selebrasi, bukan tarian dari awal sampai akhir.
