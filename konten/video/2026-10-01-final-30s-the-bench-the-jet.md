@@ -171,3 +171,124 @@ Negative: no photorealism, no live action, no 3D, no CGI, no realistic skin, no 
 - Label "PARODY" kecil di pojok kanan atas sepanjang video. Watermark @hikmamirz.
 - 0:28–0:30: freeze frame wajah Jesus (dari akhir Klip 4) dengan teks **"JESUS or CR7?"**
 - Kalau suara bahasa Jepang dari PixVerse tidak bagus, matikan suaranya. Pakai voiceover generik (bukan kloning), atau cukup subtitle dengan SFX.
+
+---
+
+## Caption final dan jadwal unggah (versi 30 detik)
+
+Kickoff Denmark vs Portugal: **Kamis 1 Okt, 20:45 waktu Kopenhagen (18:45 UTC), atau Jumat 2 Okt pukul 01:45 WIB** (sumber: [Al Jazeera](https://www.aljazeera.com/sports/2026/9/30/denmark-portugal-uefa-nations-league-ronaldo-felix-hojlund-team-form), [Goal](https://www.goal.com/en-us/news/watch-denmark-v-portugal-live-stream-online-tv-channel/bltd314fed41225b1b3)).
+
+Di setiap platform, aktifkan label AI: IG "AI info", TikTok "AI-generated content", YouTube "Altered or synthetic content".
+
+### Instagram Reels
+```
+PARODY. AI anime. Not real dialogue.
+
+"You're on the bench."
+"Okay."
+"You're not coming on."
+"Book the jet."
+
+What's real: Ronaldo (41) was unused as Portugal beat Norway 2-1. Coach Jorge Jesus said he won't start vs Denmark. Ronaldo then announced he was leaving the Portugal camp after the press conference and a conversation with the FPF President. His jet was reportedly headed to Madrid. Official reasons not yet known.
+
+Jesus: "There was no incident whatsoever." (real quote)
+
+Portugal face Denmark today. Who's right? Comment JESUS or CR7
+
+[ISI: kredit tool generate — baris Syntx + MIRZA15 hanya kalau pakai Syntx]
+
+#Ronaldo #CR7 #Portugal #NationsLeague #AIAnime
+```
+
+### TikTok
+```
+PARODY | AI anime
+"You're on the bench." "Okay." 📱✈️
+Only "There was no incident whatsoever" is a real quote. JESUS or CR7?
+#Ronaldo #CR7 #Portugal #NationsLeague #AIanime
+```
+
+### YouTube Shorts
+- Judul: `"You're on the bench." "Okay." – Ronaldo AI Anime Parody #Shorts`
+- Cadangan: `Coach Jesus Benches Ronaldo… So He Books a Jet (AI Anime Parody) #Shorts`
+
+```
+PARODY. AI-generated anime. Not real dialogue.
+
+Real facts:
+- Portugal beat Norway 2-1 with Ronaldo (41) unused on the bench.
+- Jorge Jesus said Ronaldo would not start against Denmark (Nations League).
+- Ronaldo announced on Instagram he was leaving the training camp after the coach's press conference and a conversation with the FPF President.
+- His jet to Madrid was reportedly moved up (ECO/Sapo report).
+- Official reasons not yet known.
+
+"There was no incident whatsoever" (Jorge Jesus) is a real quote. Everything else is parody.
+
+JESUS or CR7?
+
+[ISI: kredit tool generate]
+#Ronaldo #CR7 #Portugal
+```
+
+### X (lampirkan video langsung, tanpa link)
+```
+PARODY (AI anime)
+
+"You're on the bench."
+"Okay."
+"You're not coming on."
+"Book the jet."
+
+Real part: CR7 left the Portugal camp. Jesus: "There was no incident whatsoever."
+
+JESUS or CR7?
+```
+
+### Threads
+```
+Made an AI anime parody of Ronaldo leaving the Portugal camp.
+
+"You're on the bench." "Okay." Then he books a jet. Meanwhile Coach Jesus at the press conference: "There was no incident whatsoever." (that one's a real quote)
+
+Everything else is parody. Official reasons not yet known.
+
+Who's right here? JESUS or CR7?
+```
+
+### Facebook (opsional)
+```
+PARODY | AI anime | Not real dialogue
+
+"You're on the bench." "Okay." "Book the jet."
+
+What's real: Ronaldo was unused vs Norway, Jorge Jesus said he won't start vs Denmark, and Ronaldo announced he was leaving the Portugal camp. Official reasons not yet known.
+
+JESUS or CR7?
+#Ronaldo #CR7 #Portugal
+```
+
+### Komentar pin (IG, TikTok, YouTube)
+```
+Parody made with AI. Only one line is real: Jesus' "There was no incident whatsoever." Team JESUS or team CR7?
+```
+
+### Jadwal (Kamis 1 Okt 2026, WIB)
+
+| Jam WIB | Jam Eropa (CEST) | Kegiatan |
+|---|---|---|
+| sampai 18:00 | sampai 13:00 | Generate 4 klip PixVerse, edit di CapCut (subtitle, label PARODY, freeze frame), buat cover |
+| 18:00–20:30 | 13:00–15:30 | Cek ulang berita: apakah sudah ada pernyataan resmi Ronaldo atau FPF. Kalau ada, sesuaikan kalimat "Official reasons not yet known". |
+| **21:00** | 16:00 | **Unggah IG Reels dan TikTok**, lalu pin komentar |
+| 21:30 | 16:30 | YouTube Shorts |
+| 22:00 | 17:00 | X dan Threads |
+| 22:30 | 17:30 | Facebook (opsional) |
+| 21:00–22:00 | 16:00–17:00 | Balas komentar di jam pertama |
+| 01:30 (Jum) | 20:30 | Story IG opsional: "Kickoff in 15 min. JESUS or CR7?" |
+| ~03:45 (Jum) | ~22:45 | Setelah laga: Story dengan skor nyata "Portugal without CR7: [ISI: skor]" |
+| 09:00 (Jum) | — | Catat plays dan isi `[ISI: plays setelah diunggah]` di profil. Putuskan apakah perlu lanjutan ("Ronaldo watching from Madrid"). |
+
+**Kenapa pukul 21:00 WIB:**
+- Masih sekitar 4 jam 45 menit sebelum kickoff, jadi video punya waktu mengumpulkan views saat orang mencari berita sebelum laga.
+- Jam ini jatuh di sore hari Eropa, pagi hari AS, dan malam hari Indonesia.
+- Kalau video sudah siap lebih awal, unggah lebih awal. Beritanya sudah lewat 24 jam sejak pengumuman 30 Sep.
+- [ISI: jam aktif audiens dari IG Insights > Audiens > Most active times]. Kalau datanya berbeda jauh, geser jadwalnya.
