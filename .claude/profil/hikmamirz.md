@@ -24,6 +24,7 @@ Sumber: 12 reel terbaru di Instagram @hikmamirz (17–29 September 2026), diambi
 - Kalimat pembuka yang pendek dan terpotong-potong di caption ("90+ minutes. Germany leads 1–0.") cocok dengan gaya kanal.
 - Konten Timnas Indonesia menarik secara lokal tapi performanya rendah di akun berbahasa Inggris. Uji caption bilingual atau akun/platform terpisah (TikTok ID) sebelum menyimpulkan.
 - Rasio like/plays yang tinggi (8–10%) terjadi di cerita emosional, bukan di komedi.
+- (2 Oktober 2026, riset FIFA Matchday Sep–Okt) Klopp kini pelatih Jerman: start 1-1 Belanda, kalah 0-1 Yunani, lalu menang pertama 2-0 Serbia (1 Okt). Ini sambungan langsung dari reel terbesar kanal (Gakpo vs Klopp, 148,5K), jadi seri "Klopp di Jerman" layak diprioritaskan. Timnas Indonesia lolos ke final FIFA ASEAN Cup (vs Thailand, 5 Okt, SUGBK) dengan busur jatuh-bangkit yang jelas (Thom Haye kartu merah vs Malaysia 0-0, lalu Mitchell Baker 5 gol vs Bangladesh 9-2). Kredit vidIQ habis saat riset ini, jadi belum ada data outlier untuk topik-topik tersebut; ukur hasilnya setelah diposting.
 
 ## Pembanding: @plesbol_anime (dicek 29 September 2026 lewat vidIQ)
 - 6,5K followers (hampir sama dengan @hikmamirz), tapi median 12 reel terakhir sekitar **17K plays** (sekitar 5x lipat). Reel terbesar: Benzema + pemain Persib "join the trend" 456K, Marselino & Coach Shin 168K.
