@@ -10,6 +10,7 @@ Sebelum mengerjakan tugas, agent membaca profil yang relevan:
 
 - `.claude/profil/nuhaweb.md`: layanan, harga, dan fitur paket NuhaWeb (nuhaweb.com)
 - `.claude/profil/hikmamirz.md`: niche, gaya, dan data performa Instagram @hikmamirz
+- `.claude/profil/strategi-konten.md`: pilar, aturan pemilihan cerita, dan ritme konten @hikmamirz
 
 Perbarui profil ini kalau ada data baru (harga berubah, hasil riset konten terbaru).
 
@@ -28,6 +29,7 @@ Perbarui profil ini kalau ada data baru (harga berubah, hasil riset konten terba
 
 - **Proyek web baru**: `freelance-admin` (brief + penawaran) → `web-developer` (bangun) → `web-auditor` (cek sebelum diserahkan) → `freelance-admin` (invoice).
 - **Video baru**: `riset-konten` (ide) → `penulis-skrip` (paket video) → `sosmed-manager` (caption dan draf promosi).
+- **Konten rutin**: `/rencana-mingguan` (Minggu malam) → `/brief-harian` (tiap pagi) → `/paket-weekend` (Jumat sore). Hasilnya di `kantor/konten/`, dan ide dadakan dicatat di `kantor/konten/kotak-ide.md`.
 - **Portofolio**: setelah proyek web selesai, `sosmed-manager` membuat post studi kasus untuk NuhaWeb.
 
 ## Aturan kantor
