@@ -57,8 +57,12 @@ Semua hasil ada di `kantor/konten/` (di-gitignore, hanya ada di mesin yang menja
 - `weekend/<YYYY-MM-DD>.md`: paket weekend, tanggal hari Sabtu.
 - `riwayat.md`: satu baris per ide yang sudah dibuatkan brief (tanggal, pilar, judul kerja), supaya tidak diusulkan ulang.
 
-Folder Google Drive konten: [ISI: link folder Drive, setelah disetujui pemilik akun]
-Kalau baris di atas sudah diisi, kotak ide dibaca dari folder itu dan setiap brief disalin ke sana. Kalau belum, jangan menulis apa pun ke Drive.
+Folder Google Drive konten: https://drive.google.com/drive/folders/1QFj27qJLIeMWckujD-vOe00SqgnfGvyq (Kantor Hikmamirz / Konten, disetujui pemilik akun 5 Oktober 2026)
+- Kotak ide yang berlaku adalah dokumen "Kotak Ide" di folder itu, supaya bisa diisi dari HP. Baca dari sana, dan salin isinya ke `kantor/konten/kotak-ide.md` sebagai cadangan lokal.
+- Setiap hasil disalin ke folder itu sebagai dokumen baru: "Brief <YYYY-MM-DD>", "Rencana <YYYY-MM-DD>", "Weekend <YYYY-MM-DD>".
+- Google Docs menggabungkan baris yang hanya dipisah satu enter. Untuk salinan Drive, pisahkan baris kepala brief dan baris caption dengan baris kosong, dan jangan memakai tebal di dalam tabel.
+- Izin menulis hanya berlaku untuk folder ini. Jangan mengubah, memindahkan, membagikan, atau menghapus file lain di Drive.
+- Kalau Drive tidak bisa diakses, simpan lokal saja dan tulis kegagalannya di catatan hasil.
 
 ## Hemat kredit
 Kredit vidIQ terbatas (habis saat riset 2 Oktober 2026). Brief harian memakai WebSearch untuk hasil laga dan tidak memanggil vidIQ. vidIQ hanya dipakai di rencana mingguan, untuk performa akun dan outlier.
