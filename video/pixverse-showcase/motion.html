@@ -25,7 +25,7 @@ const CONFIG = {
   steps: [
     {
       title: 'Brief the agent',
-      sub: 'I describe the story in plain words',
+      sub: 'One detailed prompt into Claude Code',
       log: [
         ['user', '› Make a 10s anime football short:'],
         ['user', '  underdog striker, 90+ min, heavy rain,'],
@@ -34,7 +34,7 @@ const CONFIG = {
     },
     {
       title: 'Agent plans the shots',
-      sub: 'It turns my idea into shot-by-shot prompts',
+      sub: 'Reference image first, then 3 shot prompts',
       log: [
         ['agent', '● Agent: splitting story into 3 shots'],
         ['dim', '  1  Rainy stadium, wide establishing'],
@@ -44,7 +44,7 @@ const CONFIG = {
     },
     {
       title: 'PixVerse plugin renders',
-      sub: 'The agent calls the plugin for every shot',
+      sub: 'All 3 shots generated in parallel',
       log: [
         ['agent', '● Calling PixVerse plugin'],
         ['bar', 'shot 1'],
@@ -53,8 +53,8 @@ const CONFIG = {
       ],
     },
     {
-      title: 'Stitch & export',
-      sub: 'Shots joined into one 9:16 video',
+      title: 'Check & retake',
+      sub: 'It checks every frame, redoes bad takes',
       log: [
         ['agent', '● Agent: joining shots, export 9:16'],
         ['ok', '✓ the_last_minute.mp4 ready'],
@@ -74,13 +74,13 @@ const CONFIG = {
 
 // Waktu adegan (detik). buat-video.mjs membaca nilai ini lewat window.TIMELINE.
 const TL = {
-  duration: 46,
+  duration: 49,
   hook: [0, 3],
-  result: [3, 15],
-  how: [15, 17],
-  work: [17, 35],
-  tools: [35, 39.5],
-  cta: [39.5, 46],
+  result: [3, 18],
+  how: [18, 20],
+  work: [20, 38],
+  tools: [38, 42.5],
+  cta: [42.5, 49],
 };
 // Slot video (piksel). Slot A layar penuh, slot B isi jendela terminal.
 const SLOT_A = { x: 0, y: 0, w: 1080, h: 1920 };
@@ -320,7 +320,7 @@ function sceneHow(t) {
   revealText('HOW', 540, 860, 230, C.ink, prog(lt, 0.0, 0.35), { align: 'center', spacing: -6 });
   revealText('I MADE IT', 540, 1080, 190, C.lime, prog(lt, 0.15, 0.5), { align: 'center', spacing: -6 });
   ctx.restore();
-  pill(CONFIG.steps.length + ' STEPS · UNDER A MINUTE OF TYPING', 540, 1210, { p: prog(lt, 0.5, 0.9), bg: '#ffffff18', fg: C.ink, size: 28 });
+  pill(CONFIG.steps.length + ' STEPS · ONE PROMPT', 540, 1210, { p: prog(lt, 0.5, 0.9), bg: '#ffffff18', fg: C.ink, size: 28 });
 }
 
 function sceneWork(t) {

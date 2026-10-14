@@ -59,23 +59,36 @@ if (final) {
   const f = [];
   let base = '[1:v]', n = 2;
   const place = (file, slot, [a, b], fit) => {
-    if (!file) return;
+    if (!file) return null;
     inputs.push('-stream_loop', '-1', '-i', file);
     const s = `${slot.w}:${slot.h}`;
     const scale = fit === 'fill'
-      ? `scale=${s}:force_original_aspect_ratio=increase,crop=${s}`
+      ? `scale=${s}:force_original_aspect_ratio=increase:flags=lanczos,crop=${s}`
       : `scale=${s}:force_original_aspect_ratio=decrease,pad=${s}:(ow-iw)/2:(oh-ih)/2:color=0x0B0F1A`;
     f.push(`[${n}:v]${scale},setsar=1,fps=${fps},trim=duration=${b - a},setpts=PTS-STARTPTS+${a - t0}/TB[s${n}]`);
     f.push(`${base}[s${n}]overlay=${slot.x}:${slot.y}:eof_action=pass:enable='between(t,${a - t0},${b - t0})'[u${n}]`);
-    base = `[u${n}]`; n++;
+    base = `[u${n}]`; return n++;
   };
-  place(args.hasil, SLOT_A, TL.result, 'fill');
+  const hasilIdx = place(args.hasil, SLOT_A, TL.result, 'fill');
   place(args.rekaman, SLOT_B, [TL.work[0] - 0.3, TL.work[1]], 'fit');
   f.push(`${base}[0:v]overlay=0:0:format=auto,format=yuv420p[v]`);
-  const audio = [];
+  // Audio: suara klip hasil (hujan, penonton, tendangan) di slot A, ditambah musik kalau ada.
+  const dur = t1 - t0, tracks = [];
+  const hasAudio = file => spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'csv=p=0', file]).stdout.toString().trim() !== '';
+  if (hasilIdx !== null && !args['tanpa-suara-hasil'] && hasAudio(args.hasil)) {
+    const [a, b] = TL.result, ms = Math.max(0, Math.round((a - t0) * 1000));
+    f.push(`[${hasilIdx}:a]atrim=0:${b - a},asetpts=PTS-STARTPTS,afade=t=out:st=${b - a - 0.5}:d=0.5,adelay=${ms}:all=1,apad[ah]`);
+    tracks.push('[ah]');
+  }
   if (args.musik) {
     inputs.push('-i', args.musik);
-    f.push(`[${n}:a]atrim=0:${t1 - t0},afade=t=in:d=0.5,afade=t=out:st=${t1 - t0 - 1.5}:d=1.5[a]`);
+    const vol = tracks.length ? 0.35 : 1; // musik lebih pelan kalau ada suara klip
+    f.push(`[${n}:a]atrim=0:${dur},volume=${vol},afade=t=in:d=0.5,afade=t=out:st=${dur - 1.5}:d=1.5,apad[am]`);
+    tracks.push('[am]');
+  }
+  const audio = [];
+  if (tracks.length) {
+    f.push(`${tracks.join('')}amix=inputs=${tracks.length}:normalize=0:duration=longest,atrim=0:${dur}[a]`);
     audio.push('-map', '[a]', '-c:a', 'aac', '-b:a', '192k');
   }
   const r = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', ...inputs, '-filter_complex', f.join(';'),
