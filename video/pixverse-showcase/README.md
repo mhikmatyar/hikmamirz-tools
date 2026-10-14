@@ -8,7 +8,7 @@ Video motion graphic 40 detik untuk kampanye PixVerse Earn. Urutannya mengikuti 
 | 3–18 | Hasil | **Slot A**: klip PixVerse asli, layar penuh, dengan label "Made with Agent + PixVerse plugin" |
 | 18–19,5 | Transisi | "How I made it" |
 | 19,5–31,5 | Alur kerja | **Slot B**: rekaman layar asli di dalam jendela, ditambah kartu langkah 01–04 |
-| 31,5–34,5 | Tools | Claude Code, PixVerse plugin, edit cepat |
+| 31,5–34,5 | Tools | Claude Code dan PixVerse plugin |
 | 34,5–40 | CTA | "Try the PixVerse plugin", URL, #PixVersePlugin |
 
 ## Cara pakai
@@ -31,3 +31,5 @@ Output masuk ke `kantor/konten/pixverse/` (di-gitignore). Render butuh sekitar 3
 - `--musik`: dipotong ke 40 detik dengan fade in/out. Bisa juga dilewati lalu tambah musik di Instagram.
 
 Semua teks (prompt contoh, judul film, langkah, tools) ada di `CONFIG` di bagian atas `motion.html`. Sesuaikan dengan prompt dan langkah yang benar-benar dipakai. Buka `motion.html` di browser untuk melihat pratinjau langsung.
+
+Gaya visual: judul dua baris (Inter Display tebal + Instrument Serif miring), kartu melayang dan miring, warna PixVerse (hitam + gradasi krem, oranye, pink, ungu). Font Instrument Serif ada di `fonts/` (lisensi SIL OFL, lihat `fonts/OFL.txt`).

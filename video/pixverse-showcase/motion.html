@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <title>PixVerse Showcase</title>
 <style>
+  @font-face { font-family: "Instrument Serif"; font-style: italic; font-weight: 400;
+    src: url("fonts/instrument-serif-italic.woff2") format("woff2"); }
   html, body { margin: 0; background: #000; }
   canvas { display: block; width: 360px; height: 640px; }
 </style>
@@ -13,61 +15,35 @@
 <script>
 // =====================================================================
 // Motion graphic showcase "Agent + PixVerse plugin" (9:16, 1080x1920).
-// Semua teks ada di CONFIG. Ubah agar sesuai prompt dan langkah asli.
-// Slot A (hasil) dan slot B (rekaman layar) diisi video asli oleh
-// buat-video.mjs; tanpa video, slot diisi gambar contoh (pratinjau).
+// Gaya: judul dua baris (sans tebal + serif miring), kartu melayang dan
+// miring, warna PixVerse (hitam + gradasi krem → oranye → pink → ungu).
+// Semua teks ada di CONFIG. Slot A (hasil) dan slot B (rekaman layar)
+// diisi video asli oleh buat-video.mjs; tanpa video, slot diisi contoh.
 // =====================================================================
 const CONFIG = {
   handle: '@hikmamirz',
-  hook: ['ONE PROMPT.', 'ONE AGENT.', 'A FULL ANIME', 'FOOTBALL FILM.'],
+  hook: ['one prompt,', 'a full anime film.'],
+  hookCard: { label: 'AGENT · CLAUDE CODE', title: 'THE LAST MINUTE', sub: 'anime football · 9:16' },
+  hookChips: ['1 prompt', '3 shots', 'V6 · 1080p'],
   resultTag: 'MADE WITH AGENT + PIXVERSE PLUGIN',
   resultTitle: 'THE LAST MINUTE',
+  how: ['how i made it', 'in four steps.'],
   steps: [
-    {
-      title: 'Brief the agent',
-      sub: 'One detailed prompt into Claude Code',
-      log: [
-        ['user', '› Make a 10s anime football short:'],
-        ['user', '  underdog striker, 90+ min, heavy rain,'],
-        ['user', '  stadium lights, cinematic slow-mo.'],
-      ],
-    },
-    {
-      title: 'Agent plans the shots',
-      sub: 'Reference image first, then 3 shot prompts',
-      log: [
-        ['agent', '● Agent: splitting story into 3 shots'],
-        ['dim', '  1  Rainy stadium, wide establishing'],
-        ['dim', '  2  Close-up: striker\'s eyes, last chance'],
-        ['dim', '  3  Bicycle kick, ball hits the net'],
-      ],
-    },
-    {
-      title: 'PixVerse plugin renders',
-      sub: 'All 3 shots generated in parallel',
-      log: [
-        ['agent', '● Calling PixVerse plugin'],
-        ['bar', 'shot 1'],
-        ['bar', 'shot 2'],
-        ['bar', 'shot 3'],
-      ],
-    },
-    {
-      title: 'Check & retake',
-      sub: 'It checks every frame, redoes bad takes',
-      log: [
-        ['agent', '● Agent: joining shots, export 9:16'],
-        ['ok', '✓ the_last_minute.mp4 ready'],
-      ],
-    },
+    { title: 'brief the agent,', sub: 'one prompt in Claude Code.', chip: 'Claude Code',
+      log: [['user', '› Make a short anime football film'], ['user', '  called "THE LAST MINUTE"'], ['user', '  using the PixVerse plugin.']] },
+    { title: 'it plans the shots,', sub: 'reference image first.', chip: 'reference image',
+      log: [['agent', '● Plan: 1 reference image, 3 shots'], ['dim', '  V6 · 1080p · 9:16 · 5s']] },
+    { title: 'pixverse plugin', sub: 'renders every shot.', chip: 'PixVerse plugin · V6',
+      log: [['agent', '● Submitting 3 shots in parallel'], ['bar', 'shot 1'], ['bar', 'shot 2'], ['bar', 'shot 3']] },
+    { title: 'then it checks,', sub: 'and retakes bad shots.', chip: 'retake shots 1 & 3',
+      log: [['agent', '● Shot 2 passes, retaking 1 and 3'], ['ok', '✓ the_last_minute.mp4 ready']] },
   ],
+  toolsTitle: ['tools i used,', 'just two.'],
   tools: [
-    ['AI', 'Claude Code', 'the agent: plans & writes prompts'],
-    ['PV', 'PixVerse plugin', 'generates every shot'],
-    ['ED', 'Quick edit', 'music + captions'],
+    ['Claude Code', 'the agent · plans, prompts, checks'],
+    ['PixVerse plugin', 'CLI + skills · renders every shot'],
   ],
-  ctaTop: 'TRY THE',
-  ctaMain: ['PIXVERSE', 'PLUGIN'],
+  cta: ['try the', 'PixVerse plugin.'],
   url: 'app.pixverse.ai/cli/marketing',
   tag: '#PixVersePlugin',
 };
@@ -82,17 +58,22 @@ const TL = {
   tools: [31.5, 34.5],
   cta: [34.5, 40],
 };
-// Slot video (piksel). Slot A layar penuh, slot B isi jendela terminal.
+// Slot video (piksel). Slot A layar penuh, slot B isi jendela rekaman.
 const SLOT_A = { x: 0, y: 0, w: 1080, h: 1920 };
 const SLOT_B = { x: 70, y: 616, w: 940, h: 640 };
 window.TIMELINE = { TL, SLOT_A, SLOT_B };
 
 const W = 1080, H = 1920;
+// Palet PixVerse
+const GRAD = ['#FCD9B8', '#F7A26B', '#EF5DA8', '#A15BFF'];
 const C = {
-  bg: '#06080E', bg2: '#0D1220', ink: '#F4F6FB', mute: '#8A93A8',
-  lime: '#D4FF3A', cyan: '#3BE3FF', pink: '#FF3D8B', panel: '#0B0F1A',
+  bg: '#07060B', ink: '#F6F3F8', mute: '#9C94A8', panel: '#100D16', card: '#16121D',
+  pink: '#EF5DA8', purple: '#A15BFF', orange: '#F7A26B', cream: '#FCD9B8',
+  // dipakai gambar contoh terminal
+  lime: '#EF5DA8', cyan: '#C79BFF',
 };
-const DISPLAY = '"Inter Display", Inter, sans-serif';
+const SANS = '"Inter Display", Inter, sans-serif';
+const SERIF = '"Instrument Serif", "Liberation Serif", serif';
 const MONO = '"DejaVu Sans Mono", "Liberation Mono", monospace';
 
 const cv = document.getElementById('c');
@@ -103,14 +84,16 @@ const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const prog = (t, a, b) => clamp((t - a) / (b - a));
 const eOut = x => 1 - Math.pow(1 - x, 3);
 const eInOut = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
-const eBack = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const eBack = x => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
 const lerp = (a, b, x) => a + (b - a) * x;
+const rad = d => d * Math.PI / 180;
 function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
 
-function font(w, size, fam = DISPLAY) { ctx.font = `${w} ${size}px ${fam}`; }
-function fitFont(text, w, size, maxW, fam = DISPLAY) {
-  font(w, size, fam);
-  while (ctx.measureText(text).width > maxW && size > 10) { size -= 2; font(w, size, fam); }
+function font(w, size, fam = SANS) { ctx.font = `${w} ${size}px ${fam}`; }
+function serif(size) { ctx.font = `italic 400 ${size}px ${SERIF}`; }
+function fitFont(text, setter, size, maxW) {
+  setter(size);
+  while (ctx.measureText(text).width > maxW && size > 10) { size -= 2; setter(size); }
   return size;
 }
 function rrect(x, y, w, h, r) {
@@ -118,66 +101,132 @@ function rrect(x, y, w, h, r) {
   ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
   ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
-// Teks yang muncul dari balik masker (naik dari bawah).
-function revealText(text, x, y, size, color, p, { weight = 900, align = 'left', spacing = 0, maxW = 960 } = {}) {
-  if (p <= 0) return;
-  const s = fitFont(text, weight, size, maxW);
+function grad(x0, y0, x1, y1, stops = GRAD) {
+  const g = ctx.createLinearGradient(x0, y0, x1, y1);
+  stops.forEach((c, i) => g.addColorStop(i / (stops.length - 1), c));
+  return g;
+}
+
+// Judul dua baris ala referensi: baris 1 sans tebal, baris 2 serif miring bergradasi.
+// p = progres masuk (0..1), q = progres keluar (0..1, blur + naik).
+function title2(l1, l2, y, { p = 1, q = 0, s1 = 72, s2 = 104, gap = 96 } = {}) {
+  if (p <= 0 || q >= 1) return;
   ctx.save();
-  ctx.letterSpacing = spacing + 'px';
-  ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
-  const m = ctx.measureText(text);
-  const left = align === 'center' ? x - m.width / 2 : align === 'right' ? x - m.width : x;
-  ctx.beginPath(); ctx.rect(left - 20, y - s * 1.0, m.width + 40, s * 1.25); ctx.clip();
-  ctx.fillStyle = color;
-  ctx.fillText(text, x, y + (1 - eOut(p)) * s * 1.1);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  const blur = (1 - eOut(p)) * 18 + eInOut(q) * 18;
+  if (blur > 0.5) ctx.filter = `blur(${blur.toFixed(1)}px)`;
+  ctx.globalAlpha = eOut(p) * (1 - eInOut(q));
+  const dy = (1 - eOut(p)) * 40 - eInOut(q) * 40;
+  fitFont(l1, s => font(800, s), s1, 960);
+  ctx.letterSpacing = '-1px'; ctx.fillStyle = C.ink;
+  ctx.fillText(l1, 540, y + dy);
+  // baris 2 masuk sedikit lebih lambat
+  const p2 = clamp(p * 1.25 - 0.25);
+  ctx.globalAlpha = eOut(p2) * (1 - eInOut(q));
+  fitFont(l2, serif, s2, 980);
+  ctx.letterSpacing = '0px';
+  const w = ctx.measureText(l2).width;
+  ctx.fillStyle = grad(540 - w / 2, 0, 540 + w / 2, 0);
+  ctx.fillText(l2, 540, y + gap + dy + (1 - eOut(p2)) * 30);
   ctx.restore();
 }
-function pill(text, cx, y, { bg = C.lime, fg = '#000', size = 30, p = 1, padX = 28 } = {}) {
+
+// Kartu melayang: masuk dari offset + rotasi dengan motion blur, lalu mengambang pelan.
+// spec: {x, y (tengah), w, h, rot, dx, dy, drot, t0, dur, seed}
+function floatCard(t, spec, draw, { exitT = Infinity } = {}) {
+  const { x, y, w, h, rot = 0, dx = 0, dy = 300, drot = 12, t0 = 0, dur = 0.55, seed = 1 } = spec;
+  const p = prog(t, t0, t0 + dur);
   if (p <= 0) return;
-  ctx.save();
-  font(800, size); ctx.letterSpacing = '2px';
-  const w = ctx.measureText(text).width + padX * 2, h = size * 1.9;
-  ctx.globalAlpha = eOut(p);
-  ctx.translate(cx, y + (1 - eOut(p)) * 30);
-  rrect(-w / 2, 0, w, h, h / 2); ctx.fillStyle = bg; ctx.fill();
-  ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(text, 0, h / 2 + 2);
-  ctx.restore();
+  const q = Number.isFinite(exitT) ? prog(t, exitT, exitT + 0.35) : 0;
+  if (q >= 1) return;
+  const pose = k => {
+    const e = eBack(k);
+    return {
+      x: x + dx * (1 - e) + Math.sin((t + seed) * 1.3) * 5,
+      y: y + dy * (1 - e) + Math.cos((t + seed) * 1.1) * 8 - eInOut(q) * 120,
+      r: rad(rot + drot * (1 - e) + Math.sin((t + seed) * 0.9) * 0.8),
+    };
+  };
+  const ghosts = p < 1 ? 4 : 0;
+  for (let g = ghosts; g >= 0; g--) {
+    const k = clamp(p - g * 0.06);
+    const ps = pose(k);
+    ctx.save();
+    ctx.globalAlpha = (g === 0 ? 1 : 0.18 / g) * clamp(p * 3) * (1 - eInOut(q));
+    ctx.translate(ps.x, ps.y); ctx.rotate(ps.r); ctx.translate(-w / 2, -h / 2);
+    draw(w, h, g === 0);
+    ctx.restore();
+  }
+}
+function darkCard(w, h, r = 34, shadow = true) {
+  if (shadow) { ctx.shadowColor = '#000000cc'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 20; }
+  rrect(0, 0, w, h, r); ctx.fillStyle = C.card; ctx.fill();
+  ctx.shadowColor = 'transparent';
+  const hl = ctx.createLinearGradient(0, 0, 0, h);
+  hl.addColorStop(0, '#ffffff14'); hl.addColorStop(0.4, '#ffffff00');
+  ctx.fillStyle = hl; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = grad(0, 0, w, h, ['#FCD9B855', '#EF5DA833', '#A15BFF66']); ctx.stroke();
+}
+function gradCard(w, h, r = 34) {
+  ctx.shadowColor = '#000000cc'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 20;
+  rrect(0, 0, w, h, r); ctx.fillStyle = grad(0, 0, w, h); ctx.fill();
+  ctx.shadowColor = 'transparent';
+}
+function chip(t, text, cx, cy, { t0 = 0, rot = 0, dx = 0, dy = 120, size = 34, fill = 'dark', exitT } = {}) {
+  font(700, size); ctx.letterSpacing = '0px';
+  const w = ctx.measureText(text).width + size * 1.4, h = size * 2;
+  floatCard(t, { x: cx, y: cy, w, h, rot, dx, dy, drot: rot * -2 + 8, t0, dur: 0.45, seed: cx * 0.01 }, (w, h) => {
+    if (fill === 'grad') gradCard(w, h, h / 2); else darkCard(w, h, h / 2);
+    font(700, size); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = fill === 'grad' ? '#16081F' : C.ink;
+    ctx.fillText(text, w / 2, h / 2 + 2);
+  }, { exitT });
 }
 
 // ---------- latar ----------
 const grainRand = rng(7);
 const grain = document.createElement('canvas'); grain.width = grain.height = 256;
 { const g = grain.getContext('2d'), d = g.createImageData(256, 256);
-  for (let i = 0; i < d.data.length; i += 4) { const v = grainRand() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 18; }
+  for (let i = 0; i < d.data.length; i += 4) { const v = grainRand() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 16; }
   g.putImageData(d, 0, 0); }
+const sparkR = rng(11);
+const sparks = Array.from({ length: 14 }, () => [sparkR() * W, sparkR() * H, 6 + sparkR() * 12, sparkR() * 6, Math.floor(sparkR() * 4)]);
 
-function background(t, hue = C.cyan) {
-  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
-  // cahaya bergerak
-  const gx = 540 + Math.sin(t * 0.6) * 300, gy = 700 + Math.cos(t * 0.4) * 400;
-  const g = ctx.createRadialGradient(gx, gy, 0, gx, gy, 1100);
-  g.addColorStop(0, hue + '33'); g.addColorStop(1, '#00000000');
+function glow(x, y, r, color) {
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, color); g.addColorStop(1, '#00000000');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  // grid perspektif
-  ctx.save(); ctx.strokeStyle = '#ffffff0d'; ctx.lineWidth = 2;
-  const off = (t * 60) % 120;
-  for (let x = -off; x < W + 120; x += 120) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-  for (let y = -off; y < H + 120; y += 120) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-  ctx.restore();
+}
+function sparkle(x, y, s, color) {
+  ctx.save(); ctx.translate(x, y); ctx.fillStyle = color; ctx.beginPath();
+  for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2; ctx.quadraticCurveTo(0, 0, Math.cos(a) * s, Math.sin(a) * s); ctx.quadraticCurveTo(0, 0, Math.cos(a + Math.PI / 4) * s * 0.15, Math.sin(a + Math.PI / 4) * s * 0.15); }
+  ctx.fill(); ctx.restore();
+}
+function background(t) {
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+  glow(300 + Math.sin(t * 0.5) * 200, 500 + Math.cos(t * 0.4) * 150, 900, '#5B1F9E40');
+  glow(820 + Math.cos(t * 0.45) * 160, 1500 + Math.sin(t * 0.35) * 140, 900, '#F7A26B26');
+  glow(540, 1000, 700, '#EF5DA81a');
+  // sparkle & titik kecil yang melayang
+  sparks.forEach(([x, y, s, ph, ci], i) => {
+    const yy = (y - t * (12 + i)) % H, a = 0.35 + 0.35 * Math.sin(t * 2 + ph);
+    ctx.globalAlpha = a;
+    if (i % 3 === 0) { ctx.strokeStyle = GRAD[ci]; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, (yy + H) % H, s, 0, 7); ctx.stroke(); }
+    else sparkle(x, (yy + H) % H, s * 1.6, GRAD[ci]);
+  });
+  ctx.globalAlpha = 1;
 }
 function finish(t) {
   ctx.save();
   const ox = Math.floor((t * 97) % 256), oy = Math.floor((t * 61) % 256);
   ctx.translate(-ox, -oy); ctx.fillStyle = ctx.createPattern(grain, 'repeat');
   ctx.fillRect(0, 0, W + 256, H + 256); ctx.restore();
-  // vignette
-  const v = ctx.createRadialGradient(540, 960, 500, 540, 960, 1250);
-  v.addColorStop(0, '#00000000'); v.addColorStop(1, '#000000aa');
+  const v = ctx.createRadialGradient(540, 960, 520, 540, 960, 1250);
+  v.addColorStop(0, '#00000000'); v.addColorStop(1, '#000000b0');
   ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
 }
 function watermark(a = 1) {
-  ctx.save(); ctx.globalAlpha = 0.75 * a; font(700, 30); ctx.fillStyle = C.ink;
+  ctx.save(); ctx.globalAlpha = 0.6 * a; font(600, 28); ctx.fillStyle = C.ink;
   ctx.textAlign = 'center'; ctx.fillText(CONFIG.handle, 540, H - 70); ctx.restore();
 }
 
@@ -278,14 +327,30 @@ function placeholderTerminal(t) {
 
 // ---------- adegan ----------
 function sceneHook(t) {
-  background(t, C.lime);
-  pill('AGENT + PIXVERSE PLUGIN', 540, 520, { p: prog(t, 0.0, 0.4), size: 30 });
-  const lines = CONFIG.hook, ys = [820, 960, 1100, 1240], at = [0.15, 0.55, 1.0, 1.25];
-  lines.forEach((s, i) => revealText(s, 540, ys[i], 128, i >= 2 ? C.lime : C.ink, prog(t, at[i], at[i] + 0.45), { align: 'center', spacing: -2 }));
-  // zoom pukulan kecil
-  const a = prog(t, 2.0, 2.6);
-  ctx.save(); ctx.globalAlpha = a; font(700, 34); ctx.fillStyle = C.mute; ctx.textAlign = 'center';
-  ctx.fillText('watch the result ↓', 540, 1450 + Math.sin(t * 6) * 8); ctx.restore();
+  background(t);
+  title2(CONFIG.hook[0], CONFIG.hook[1], 380, { p: prog(t, 0.0, 0.6), s1: 84, s2: 120, gap: 112 });
+  const hc = CONFIG.hookCard;
+  // kartu tiket utama + potongan gradasi di kanan
+  floatCard(t, { x: 540, y: 940, w: 860, h: 330, rot: -5, dx: 500, dy: 200, drot: 20, t0: 0.35, dur: 0.6, seed: 2 }, (w, h) => {
+    darkCard(w - 210, h);
+    ctx.save(); ctx.translate(w - 200, 0); gradCard(200, h); ctx.restore();
+    // lubang tiket
+    ctx.fillStyle = C.bg; ctx.beginPath(); ctx.arc(w - 205, 0, 18, 0, 7); ctx.arc(w - 205, h, 18, 0, 7); ctx.fill();
+    font(700, 22, MONO); ctx.fillStyle = C.mute; ctx.textAlign = 'left'; ctx.letterSpacing = '3px';
+    ctx.fillText(hc.label, 40, 62);
+    ctx.letterSpacing = '-1px'; fitFont(hc.title, s => font(900, s), 76, w - 290); ctx.fillStyle = C.ink;
+    ctx.fillText(hc.title, 40, 180);
+    ctx.letterSpacing = '0px'; serif(46); ctx.fillStyle = grad(40, 0, 520, 0); ctx.fillText(hc.sub, 40, 258);
+    // stub
+    ctx.textAlign = 'center'; ctx.fillStyle = '#16081F';
+    sparkle(w - 100, 120, 34, '#16081F');
+    font(900, 26); ctx.letterSpacing = '2px'; ctx.fillText('PIXVERSE', w - 100, 215); ctx.fillText('PLUGIN', w - 100, 250);
+  });
+  chip(t, CONFIG.hookChips[0], 300, 1250, { t0: 0.8, rot: 7, dx: -200 });
+  chip(t, CONFIG.hookChips[1], 760, 1300, { t0: 1.0, rot: -6, dx: 200, fill: 'grad' });
+  chip(t, CONFIG.hookChips[2], 760, 690, { t0: 1.2, rot: 5, dx: 150, dy: -120, size: 28 });
+  ctx.save(); ctx.globalAlpha = eOut(prog(t, 2.0, 2.4)); font(600, 32); ctx.fillStyle = C.mute; ctx.textAlign = 'center';
+  ctx.fillText('watch the result ↓', 540, 1560 + Math.sin(t * 6) * 8); ctx.restore();
 }
 
 function sceneResult(t) {
@@ -294,129 +359,118 @@ function sceneResult(t) {
   if (r < 1110) sceneHook(t);
   slot(() => { ctx.beginPath(); if (r >= 1110) ctx.rect(0, 0, W, H); else ctx.arc(540, 960, r, 0, 7); },
        () => placeholderResult(t));
-  // garis tepi lingkaran saat membuka
-  if (r < 1110) { ctx.save(); ctx.strokeStyle = C.lime; ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(540, 960, r, 0, 7); ctx.stroke(); ctx.restore(); }
+  if (r < 1110) { ctx.save(); ctx.strokeStyle = grad(0, 0, W, H); ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(540, 960, r, 0, 7); ctx.stroke(); ctx.restore(); }
   // UI di atas video
   const ui = prog(lt, 0.7, 1.1);
-  pill(CONFIG.resultTag, 540, 140, { p: ui, size: 28 });
   if (ui > 0) {
     ctx.save(); ctx.globalAlpha = eOut(ui);
-    ctx.fillStyle = '#00000088'; rrect(60, 1690, 960, 130, 26); ctx.fill();
-    font(900, 46); ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.letterSpacing = '1px';
-    ctx.fillText(CONFIG.resultTitle, 100, 1752);
-    font(600, 28); ctx.fillStyle = C.lime; ctx.fillText('Agent + PixVerse plugin · ' + CONFIG.handle, 100, 1796);
-    // bar progres
-    ctx.fillStyle = '#ffffff33'; ctx.fillRect(0, H - 12, W, 12);
-    ctx.fillStyle = C.lime; ctx.fillRect(0, H - 12, W * prog(t, TL.result[0], TL.result[1]), 12);
+    font(800, 26); ctx.letterSpacing = '2px';
+    const tw = ctx.measureText(CONFIG.resultTag).width + 56;
+    ctx.translate(0, (1 - eOut(ui)) * -30);
+    rrect(540 - tw / 2, 120, tw, 56, 28); ctx.fillStyle = grad(540 - tw / 2, 0, 540 + tw / 2, 0); ctx.fill();
+    ctx.fillStyle = '#16081F'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(CONFIG.resultTag, 540, 150);
+    ctx.restore();
+    ctx.save(); ctx.globalAlpha = eOut(ui);
+    ctx.fillStyle = '#0b0810b8'; rrect(60, 1680, 960, 140, 30); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff22'; ctx.stroke();
+    font(900, 48); ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.letterSpacing = '0px';
+    ctx.fillText(CONFIG.resultTitle, 100, 1748);
+    serif(38); ctx.fillStyle = grad(100, 0, 700, 0); ctx.fillText('agent + pixverse plugin · ' + CONFIG.handle, 100, 1796);
+    ctx.fillStyle = '#ffffff22'; ctx.fillRect(0, H - 10, W, 10);
+    ctx.fillStyle = grad(0, 0, W, 0); ctx.fillRect(0, H - 10, W * prog(t, TL.result[0], TL.result[1]), 10);
     ctx.restore();
   }
 }
 
 function sceneHow(t) {
-  background(t, C.pink);
+  background(t);
   const lt = t - TL.how[0];
-  const s = 1 + 0.08 * (1 - eOut(prog(lt, 0, 0.5)));
-  ctx.save(); ctx.translate(540, 960); ctx.scale(s, s); ctx.translate(-540, -960);
-  revealText('HOW', 540, 860, 230, C.ink, prog(lt, 0.0, 0.35), { align: 'center', spacing: -6 });
-  revealText('I MADE IT', 540, 1080, 190, C.lime, prog(lt, 0.15, 0.5), { align: 'center', spacing: -6 });
-  ctx.restore();
-  pill(CONFIG.steps.length + ' STEPS · ONE PROMPT', 540, 1210, { p: prog(lt, 0.5, 0.9), bg: '#ffffff18', fg: C.ink, size: 28 });
+  title2(CONFIG.how[0], CONFIG.how[1], 900, { p: prog(lt, 0, 0.45), s1: 110, s2: 170, gap: 170 });
+  chip(t, '4 steps · 1 prompt', 540, 1260, { t0: TL.how[0] + 0.35, rot: -4, size: 30 });
 }
 
 function sceneWork(t) {
-  background(t, C.cyan);
+  background(t);
   const lt = t - TL.work[0];
   const n = CONFIG.steps.length, stepDur = (TL.work[1] - TL.work[0]) / n;
   const si = Math.min(n - 1, Math.floor(lt / stepDur)), st = lt - si * stepDur;
-  // header
-  font(800, 30); ctx.letterSpacing = '6px'; ctx.fillStyle = C.mute; ctx.textAlign = 'center';
-  ctx.fillText('HOW I MADE IT', 540, 230); ctx.letterSpacing = '0px';
-  // titik langkah
-  for (let i = 0; i < n; i++) {
-    const cx = 540 + (i - (n - 1) / 2) * 150, act = i <= si;
-    ctx.fillStyle = act ? C.lime : '#ffffff22'; rrect(cx - 60, 280, 120, 10, 5); ctx.fill();
-  }
-  // jendela
-  const wp = eOut(prog(lt, 0, 0.5));
+  const stp = CONFIG.steps[si];
+  // judul per langkah, keluar dengan blur sebelum ganti langkah
+  title2(stp.title, stp.sub, 300, { p: prog(st, 0, 0.4), q: si < n - 1 ? prog(st, stepDur - 0.25, stepDur) : 0, s1: 76, s2: 104, gap: 100 });
+  // jendela rekaman
+  const wp = eOut(prog(lt, 0, 0.45));
   const { x, y, w, h } = SLOT_B;
   ctx.save(); ctx.globalAlpha = wp;
-  ctx.shadowColor = C.cyan + '55'; ctx.shadowBlur = 60;
-  rrect(x, y - 64, w, h + 64, 28); ctx.fillStyle = '#151b2c'; ctx.fill();
+  ctx.shadowColor = '#A15BFF66'; ctx.shadowBlur = 80;
+  rrect(x - 6, y - 70, w + 12, h + 76, 30); ctx.fillStyle = grad(x, y, x + w, y + h, ['#FCD9B8', '#EF5DA8', '#A15BFF']); ctx.fill();
   ctx.shadowBlur = 0;
+  rrect(x, y - 64, w, h + 64, 26); ctx.fillStyle = '#120F18'; ctx.fill();
   ['#ff5f57', '#febc2e', '#28c840'].forEach((c, i) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x + 40 + i * 36, y - 32, 11, 0, 7); ctx.fill(); });
   font(600, 24); ctx.fillStyle = C.mute; ctx.textAlign = 'center';
-  ctx.fillText('agent  ·  pixverse plugin', 540, y - 24);
+  ctx.fillText('claude code  ·  pixverse plugin', 540, y - 24);
   ctx.restore();
   slot(() => { ctx.beginPath(); ctx.rect(x, y, w, h); }, () => placeholderTerminal(t));
-  // kartu langkah
-  const cp = prog(st, 0, 0.45);
-  const stp = CONFIG.steps[si];
-  ctx.save();
-  font(900, 150); ctx.fillStyle = C.lime; ctx.textAlign = 'left'; ctx.globalAlpha = eOut(cp);
-  ctx.fillText(String(si + 1).padStart(2, '0'), 70 - (1 - eOut(cp)) * 60, 1470);
-  ctx.restore();
-  revealText(stp.title, 70, 1580, 78, C.ink, cp, { spacing: -1, maxW: 940 });
-  ctx.save(); ctx.globalAlpha = eOut(prog(st, 0.25, 0.7)); font(500, 38); ctx.fillStyle = C.mute;
-  ctx.textAlign = 'left'; ctx.fillText(stp.sub, 72, 1650); ctx.restore();
-  // sebutan plugin di langkah 3
-  if (si === 2) pill('PIXVERSE PLUGIN', 860, 1395, { p: prog(st, 0.4, 0.8), bg: C.pink, fg: '#fff', size: 26 });
+  // chip miring di pojok jendela, ganti tiap langkah
+  chip(t, stp.chip, 790, 590, { t0: TL.work[0] + si * stepDur + 0.2, rot: 6, dx: 150, dy: -60, size: 30,
+    fill: si === 2 ? 'grad' : 'dark', exitT: si < n - 1 ? TL.work[0] + (si + 1) * stepDur - 0.3 : Infinity });
+  // nomor langkah
+  for (let i = 0; i < n; i++) {
+    const cx = 540 + (i - (n - 1) / 2) * 190, cy = 1400, act = i === si, done = i < si;
+    ctx.save();
+    rrect(cx - 80, cy - 36, 160, 72, 36);
+    if (act) { ctx.fillStyle = grad(cx - 80, 0, cx + 80, 0); ctx.fill(); }
+    else { ctx.fillStyle = done ? '#ffffff1f' : '#ffffff0d'; ctx.fill(); }
+    font(800, 30); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = act ? '#16081F' : done ? C.ink : C.mute;
+    ctx.fillText(done ? '✓' : String(i + 1).padStart(2, '0'), cx, cy + 2);
+    ctx.restore();
+  }
   watermark();
 }
 
 function sceneTools(t) {
-  background(t, C.lime);
+  background(t);
   const lt = t - TL.tools[0];
-  revealText('TOOLS I USED', 540, 520, 110, C.ink, prog(lt, 0, 0.4), { align: 'center', spacing: -3 });
-  CONFIG.tools.forEach(([ic, name, desc], i) => {
-    const p = eBack(prog(lt, 0.35 + i * 0.25, 0.85 + i * 0.25));
-    if (p <= 0) return;
-    const y = 680 + i * 240;
-    ctx.save(); ctx.translate((1 - p) * 700, 0); ctx.globalAlpha = clamp(p);
-    rrect(70, y, 940, 200, 32); ctx.fillStyle = i === 1 ? C.lime : '#ffffff10'; ctx.fill();
-    rrect(110, y + 40, 120, 120, 26); ctx.fillStyle = i === 1 ? '#000' : C.lime; ctx.fill();
-    font(900, 48); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = i === 1 ? C.lime : '#000';
-    ctx.fillText(ic, 170, y + 102);
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    font(900, 56); ctx.fillStyle = i === 1 ? '#000' : C.ink; ctx.fillText(name, 270, y + 95);
-    font(500, 32); ctx.fillStyle = i === 1 ? '#000000aa' : C.mute; ctx.fillText(desc, 272, y + 145);
-    ctx.restore();
+  title2(CONFIG.toolsTitle[0], CONFIG.toolsTitle[1], 380, { p: prog(lt, 0, 0.4), s1: 84, s2: 120, gap: 112 });
+  CONFIG.tools.forEach(([name, desc], i) => {
+    const hero = i === CONFIG.tools.length - 1;
+    floatCard(t, { x: 540, y: 820 + i * 330, w: 860, h: 250, rot: i % 2 ? 4 : -4, dx: i % 2 ? 600 : -600, dy: 80, drot: i % 2 ? 15 : -15, t0: TL.tools[0] + 0.3 + i * 0.25, dur: 0.55, seed: i + 4 }, (w, h) => {
+      if (hero) gradCard(w, h); else darkCard(w, h);
+      ctx.textAlign = 'left';
+      sparkle(80, h / 2, 34, hero ? '#16081F' : C.pink);
+      font(900, 64); ctx.letterSpacing = '-1px'; ctx.fillStyle = hero ? '#16081F' : C.ink; ctx.fillText(name, 150, 120);
+      ctx.letterSpacing = '0px'; font(500, 28, MONO); ctx.fillStyle = hero ? '#16081Fbb' : C.mute; ctx.fillText(desc, 152, 176);
+    });
   });
-  ctx.save(); ctx.globalAlpha = eOut(prog(lt, 1.6, 2.1)); font(700, 36); ctx.fillStyle = C.ink; ctx.textAlign = 'center';
-  ctx.fillText('Idea → agent → PixVerse plugin → video', 540, 1480); ctx.restore();
+  chip(t, 'idea → agent → plugin → film', 540, 1520, { t0: TL.tools[0] + 1.0, rot: -3, size: 30 });
   watermark();
 }
 
 function sceneCta(t) {
-  background(t, C.pink);
+  background(t);
   const lt = t - TL.cta[0];
-  revealText(CONFIG.ctaTop, 540, 600, 90, C.mute, prog(lt, 0, 0.35), { align: 'center', spacing: 4, weight: 800 });
-  revealText(CONFIG.ctaMain[0], 540, 780, 190, C.ink, prog(lt, 0.15, 0.55), { align: 'center', spacing: -6 });
-  revealText(CONFIG.ctaMain[1], 540, 960, 190, C.lime, prog(lt, 0.3, 0.7), { align: 'center', spacing: -6 });
-  // kotak URL
-  const up = eBack(prog(lt, 0.8, 1.3));
-  if (up > 0) {
-    ctx.save(); ctx.translate(540, 1140); ctx.scale(up, up);
-    const sz = fitFont(CONFIG.url, 700, 50, 860, MONO);
-    const tw = ctx.measureText(CONFIG.url).width;
-    rrect(-tw / 2 - 40, -60, tw + 80, 120, 24); ctx.fillStyle = '#ffffff12'; ctx.fill();
-    ctx.strokeStyle = C.lime; ctx.lineWidth = 4; ctx.stroke();
-    ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(CONFIG.url, 0, 4);
-    ctx.restore();
-  }
-  ctx.save(); ctx.globalAlpha = eOut(prog(lt, 1.4, 1.8)); font(700, 40); ctx.fillStyle = C.ink; ctx.textAlign = 'center';
-  ctx.fillText('Link in caption ↓', 540, 1290 + Math.sin(t * 5) * 8); ctx.restore();
-  pill(CONFIG.tag, 540, 1400, { p: prog(lt, 1.8, 2.2), bg: C.pink, fg: '#fff', size: 40 });
-  ctx.save(); ctx.globalAlpha = eOut(prog(lt, 2.2, 2.6)); font(800, 44); ctx.fillStyle = C.lime; ctx.textAlign = 'center';
-  ctx.fillText('Follow ' + CONFIG.handle + ' for more AI films', 540, 1640); ctx.restore();
+  title2(CONFIG.cta[0], CONFIG.cta[1], 520, { p: prog(lt, 0, 0.5), s1: 96, s2: 150, gap: 150 });
+  floatCard(t, { x: 540, y: 1000, w: 900, h: 220, rot: -3, dx: 0, dy: 400, drot: 10, t0: TL.cta[0] + 0.5, dur: 0.6, seed: 9 }, (w, h) => {
+    darkCard(w - 170, h);
+    ctx.save(); ctx.translate(w - 160, 0); gradCard(160, h); ctx.restore();
+    ctx.fillStyle = C.bg; ctx.beginPath(); ctx.arc(w - 165, 0, 16, 0, 7); ctx.arc(w - 165, h, 16, 0, 7); ctx.fill();
+    font(700, 22, MONO); ctx.letterSpacing = '3px'; ctx.fillStyle = C.mute; ctx.textAlign = 'left';
+    ctx.fillText('LINK IN CAPTION', 40, 64);
+    ctx.letterSpacing = '0px'; fitFont(CONFIG.url, s => font(700, s, MONO), 42, w - 250); ctx.fillStyle = C.ink;
+    ctx.fillText(CONFIG.url, 40, 150);
+    font(900, 80); ctx.textAlign = 'center'; ctx.fillStyle = '#16081F'; ctx.fillText('↗', w - 80, h / 2 + 28);
+  });
+  chip(t, CONFIG.tag, 400, 1250, { t0: TL.cta[0] + 1.0, rot: 5, fill: 'grad', size: 40 });
+  chip(t, 'follow ' + CONFIG.handle, 720, 1400, { t0: TL.cta[0] + 1.3, rot: -5, size: 32 });
 }
 
-// Sapuan transisi diagonal di setiap pergantian adegan.
-function wipe(t, t0, color) {
+// Transisi: sapuan diagonal bergradasi di setiap pergantian adegan.
+function wipe(t, t0) {
   const p = prog(t, t0 - 0.3, t0 + 0.3);
   if (p <= 0 || p >= 1) return;
-  const x = lerp(-1600, 1600, eInOut(p));
+  const x = lerp(-1700, 1700, eInOut(p));
   ctx.save(); ctx.translate(540 + x, 960); ctx.rotate(-0.35);
-  ctx.fillStyle = color; ctx.fillRect(-700, -1600, 1400, 3200);
+  ctx.fillStyle = grad(-700, 0, 700, 0); ctx.fillRect(-700, -1600, 1400, 3200);
   ctx.fillStyle = '#000'; ctx.fillRect(-760, -1600, 60, 3200);
   ctx.restore();
 }
@@ -425,8 +479,7 @@ function render(t, mode = 'preview') {
   MODE = mode;
   ctx.save();
   ctx.clearRect(0, 0, W, H);
-  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.letterSpacing = '0px';
-  const inSlotScene = t >= TL.result[0] && t < TL.result[1];
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.letterSpacing = '0px'; ctx.filter = 'none';
   if (t < TL.result[0]) sceneHook(t);
   else if (t < TL.result[1]) sceneResult(t);
   else if (t < TL.how[1]) sceneHow(t);
@@ -434,18 +487,20 @@ function render(t, mode = 'preview') {
   else if (t < TL.tools[1]) sceneTools(t);
   else sceneCta(t);
   // grain/vignette jangan menutupi klip asli di mode layer
-  if (!(mode === 'layer' && inSlotScene)) { if (!(mode === 'layer' && t >= TL.work[0] && t < TL.work[1])) finish(t); }
-  wipe(t, TL.result[1], C.lime);
-  wipe(t, TL.work[0], C.cyan);
-  wipe(t, TL.tools[0], C.pink);
-  wipe(t, TL.cta[0], C.lime);
+  const overSlot = (t >= TL.result[0] && t < TL.result[1]) || (t >= TL.work[0] && t < TL.work[1]);
+  if (!(mode === 'layer' && overSlot)) finish(t);
+  wipe(t, TL.result[1]);
+  wipe(t, TL.work[0]);
+  wipe(t, TL.tools[0]);
+  wipe(t, TL.cta[0]);
   ctx.restore();
 }
 
 window.renderFrame = (t, mode, type = 'image/png', q) => { render(t, mode); return cv.toDataURL(type, q); };
-window.ready = document.fonts.load('900 100px "Inter Display"')
-  .then(() => Promise.all([document.fonts.load('500 40px "Inter Display"'), document.fonts.load('700 40px "DejaVu Sans Mono"')]))
-  .then(() => true);
+window.ready = Promise.all([
+  document.fonts.load('900 100px "Inter Display"'), document.fonts.load('500 40px "Inter Display"'),
+  document.fonts.load('italic 400 100px "Instrument Serif"'), document.fonts.load('700 40px "DejaVu Sans Mono"'),
+]).then(() => true);
 
 // Pratinjau langsung di browser: buka file ini, video berjalan berulang.
 if (!navigator.webdriver) {
