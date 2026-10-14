@@ -31,9 +31,9 @@ const CONFIG = {
   steps: [
     { title: 'brief the agent,', sub: 'one prompt in Claude Code.', chip: 'Claude Code',
       log: [['user', '› Make a short anime football film'], ['user', '  called "THE LAST MINUTE"'], ['user', '  using the PixVerse plugin.']] },
-    { title: 'it plans the shots,', sub: 'reference image first.', chip: 'reference image',
+    { title: 'it locks the character,', sub: 'striker sheet as @image1.', chip: 'create reference',
       log: [['agent', '● Plan: 1 reference image, 3 shots'], ['dim', '  V6 · 1080p · 9:16 · 5s']] },
-    { title: 'pixverse plugin', sub: 'renders every shot.', chip: 'PixVerse plugin · V6',
+    { title: 'pixverse plugin', sub: 'renders it with Seedance 2.5.', chip: 'Seedance 2.5 · 1080p',
       log: [['agent', '● Submitting 3 shots in parallel'], ['bar', 'shot 1'], ['bar', 'shot 2'], ['bar', 'shot 3']] },
     { title: 'then it checks,', sub: 'and retakes bad shots.', chip: 'retake shots 1 & 3',
       log: [['agent', '● Shot 2 passes, retaking 1 and 3'], ['ok', '✓ the_last_minute.mp4 ready']] },
