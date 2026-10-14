@@ -8,7 +8,7 @@ Video motion graphic 40 detik untuk kampanye PixVerse Earn. Urutannya mengikuti 
 | 3–18 | Hasil | **Slot A**: klip PixVerse asli, layar penuh, dengan label "Made with Agent + PixVerse plugin" |
 | 18–19,5 | Transisi | "How I made it" |
 | 19,5–31,5 | Alur kerja | **Slot B**: rekaman layar asli di dalam jendela, ditambah kartu langkah 01–04 |
-| 31,5–34,5 | Tools | Claude Code dan PixVerse plugin |
+| 31,5–34,5 | Tools | Claude Code, CapCut, PixVerse plugin |
 | 34,5–40 | CTA | "Try the PixVerse plugin", URL, #PixVersePlugin |
 
 ## Cara pakai
