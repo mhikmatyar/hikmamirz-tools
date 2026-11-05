@@ -3,3 +3,5 @@ node_modules/
 Thumbs.db
 .claude/settings.local.json
 kantor/
+.vercel
+.env*
