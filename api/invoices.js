@@ -30,8 +30,16 @@ function getKvConfig() {
 
   if (!url || !token) {
     for (const [k, v] of Object.entries(process.env)) {
-      if (!url && k.endsWith('_KV_REST_API_URL')) url = v;
-      if (!token && k.endsWith('_KV_REST_API_TOKEN') && !k.includes('READ_ONLY')) token = v;
+      if (!url && (k.endsWith('_KV_REST_API_URL') || k.endsWith('_REDIS_REST_URL') || k.endsWith('_REST_API_URL') || k.includes('REST_API_URL'))) {
+        url = v;
+      }
+      if (
+        !token &&
+        (k.endsWith('_KV_REST_API_TOKEN') || k.endsWith('_REDIS_REST_TOKEN') || k.endsWith('_REST_API_TOKEN') || k.includes('REST_API_TOKEN')) &&
+        !k.includes('READ_ONLY')
+      ) {
+        token = v;
+      }
     }
   }
 
@@ -123,10 +131,23 @@ async function loadData() {
       });
       if (res.ok) {
         const body = await res.json();
-        if (body && body.result) {
-          const parsed = typeof body.result === 'string' ? JSON.parse(body.result) : body.result;
-          return { data: parsed, storage: 'vercel_kv' };
+        if (body && body.result !== undefined && body.result !== null) {
+          let parsed = body.result;
+          if (typeof parsed === 'string') {
+            try { parsed = JSON.parse(parsed); } catch (_) {}
+            if (typeof parsed === 'string') {
+              try { parsed = JSON.parse(parsed); } catch (_) {}
+            }
+          }
+          if (parsed && typeof parsed === 'object') {
+            return { data: parsed, storage: 'vercel_kv' };
+          }
         }
+        // Jika belum ada data (pertama kali dibuat), koneksi KV tetap 200 OK
+        return { data: INITIAL_DATA, storage: 'vercel_kv' };
+      } else {
+        const errText = await res.text().catch(() => '');
+        console.warn('Vercel KV HTTP error:', res.status, errText);
       }
     } catch (err) {
       console.warn('Gagal membaca Vercel KV, fallback ke lokal:', err.message);
@@ -160,9 +181,14 @@ async function saveData(data) {
           Authorization: `Bearer ${KV_TOKEN}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(JSON.stringify(data)),
+        body: JSON.stringify(data),
       });
-      if (res.ok) savedTo.push('vercel_kv');
+      if (res.ok) {
+        savedTo.push('vercel_kv');
+      } else {
+        const errText = await res.text().catch(() => '');
+        console.error('Vercel KV set error:', res.status, errText);
+      }
     } catch (err) {
       console.error('Error menyimpan ke Vercel KV:', err.message);
     }
@@ -201,9 +227,26 @@ module.exports = async function handler(req, res) {
 
   // ---------------- GET ----------------
   if (req.method === 'GET') {
+    const isCheck = url.searchParams.get('check') === '1';
+    const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
+    if (isCheck) {
+      let kvHost = null;
+      try { if (KV_URL) kvHost = new URL(KV_URL).hostname; } catch (_) {}
+      return send(res, 200, {
+        ok: true,
+        storage,
+        kvDetected: Boolean(KV_URL && KV_TOKEN),
+        kvHost,
+        detectedKeys: Object.keys(process.env).filter(
+          (k) => k.includes('KV') || k.includes('REDIS') || k.includes('UPSTASH')
+        ),
+      });
+    }
+
     return send(res, 200, {
       ok: true,
       storage,
+      kvDetected: Boolean(KV_URL && KV_TOKEN),
       invoices: data.invoices,
       clients: data.clients,
       business: data.business,
@@ -255,7 +298,8 @@ module.exports = async function handler(req, res) {
       }
 
       const savedTo = await saveData(data);
-      return send(res, 200, { ok: true, invoice, savedTo, storage });
+      const actualStorage = savedTo.includes("vercel_kv") ? "vercel_kv" : storage;
+      return send(res, 200, { ok: true, invoice, savedTo, storage: actualStorage });
     }
 
     if (action === 'save_client') {
@@ -285,7 +329,8 @@ module.exports = async function handler(req, res) {
       if (payload.business) {
         data.business = { ...data.business, ...payload.business };
         const savedTo = await saveData(data);
-        return send(res, 200, { ok: true, business: data.business, savedTo, storage });
+        const actualStorage = savedTo.includes("vercel_kv") ? "vercel_kv" : storage;
+        return send(res, 200, { ok: true, business: data.business, savedTo, storage: actualStorage });
       }
     }
 

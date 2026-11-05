@@ -486,7 +486,7 @@ HT.register('invoice-generator', {
             state.invoices = body.invoices || [];
             state.clients = body.clients?.length ? body.clients : state.clients;
             state.business = body.business ? { ...state.business, ...body.business } : state.business;
-            storageStatus = body.storage || 'vercel_kv';
+            storageStatus = body.storage === 'vercel_kv' ? 'vercel_kv' : (body.storage === 'local_file' ? 'local_file' : 'browser');
 
             localStorage.setItem('flowly_invoices_local', JSON.stringify(state));
           }
@@ -540,7 +540,7 @@ HT.register('invoice-generator', {
         });
         if (res.ok) {
           const body = await res.json();
-          if (body.storage) storageStatus = body.storage;
+          if (body.savedTo && body.savedTo.includes('vercel_kv')) { storageStatus = 'vercel_kv'; } else if (body.storage) { storageStatus = body.storage === 'vercel_kv' ? 'vercel_kv' : (body.storage === 'local_file' ? 'local_file' : 'browser'); }
         }
       } catch (err) {
         console.warn('Gagal sync ke serverless API, tetap tersimpan aman di browser:', err);
