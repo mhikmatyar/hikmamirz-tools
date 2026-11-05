@@ -16,8 +16,28 @@
 const fs = require('fs');
 const path = require('path');
 
-const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+// Deteksi otomatis URL dan Token KV / Redis (mendukung KV_*, KITFORGE_KV_*, UPSTASH_*, dll)
+function getKvConfig() {
+  let url =
+    process.env.KV_REST_API_URL ||
+    process.env.KITFORGE_KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL;
+
+  let token =
+    process.env.KV_REST_API_TOKEN ||
+    process.env.KITFORGE_KV_REST_API_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) {
+    for (const [k, v] of Object.entries(process.env)) {
+      if (!url && k.endsWith('_KV_REST_API_URL')) url = v;
+      if (!token && k.endsWith('_KV_REST_API_TOKEN') && !k.includes('READ_ONLY')) token = v;
+    }
+  }
+
+  return { url, token };
+}
+
 const KV_KEY = 'kitforge_invoice_store_v1';
 
 // Lokasi file lokal saat dev
@@ -93,6 +113,8 @@ async function parseBody(req) {
 }
 
 async function loadData() {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
+
   // 1. Coba baca dari Vercel KV jika ada
   if (KV_URL && KV_TOKEN) {
     try {
@@ -127,6 +149,7 @@ async function loadData() {
 
 async function saveData(data) {
   let savedTo = [];
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
 
   // 1. Simpan ke Vercel KV jika tersedia
   if (KV_URL && KV_TOKEN) {
