@@ -109,6 +109,7 @@ HT.register('invoice-generator', {
         bankName: 'BCA',
         accountNumber: '0600684761',
         accountHolder: 'MIRZA HIKMATYAR',
+        logoImage: '',
         qrisImage: '',
         signatureImage: '',
         stampImage: '',
@@ -342,6 +343,7 @@ HT.register('invoice-generator', {
         currency: 'MYR',
         docType: 'invoice', // 'invoice' | 'quotation' | 'receipt'
         language: 'id', // 'id' | 'en'
+        logoImage: state.business?.logoImage || '',
         clientId: state.clients[0]?.id || 'c1',
         client: state.clients[0]
           ? { ...state.clients[0] }
@@ -999,6 +1001,32 @@ HT.register('invoice-generator', {
               </div>
             </div>
 
+            <!-- Upload Logo Bisnis -->
+            <div class="inv-logo-card">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                ${
+                  currentInvoice.logoImage || state.business.logoImage
+                    ? `<img src="${currentInvoice.logoImage || state.business.logoImage}" class="inv-logo-thumb" alt="Logo">`
+                    : `<div class="inv-paper-logo" style="width: 40px; height: 40px; font-size: 1.1rem; border-radius: 8px;">${(state.business.name || 'F').slice(0, 1)}</div>`
+                }
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                  <span style="font-size: 0.85rem; font-weight: 600; color: var(--text);">Logo Bisnis / Kop Faktur</span>
+                  <span style="font-size: 0.72rem; color: var(--text-3);">Tampil di sudut kanan atas dokumen invoice</span>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <input type="file" id="file-logo-upload" accept="image/*" style="display: none;">
+                <button class="inv-btn inv-btn-sm" id="btn-trigger-logo" type="button" title="Pilih logo baru">
+                  ${icon('upload', 14)} <span>${currentInvoice.logoImage || state.business.logoImage ? 'Ganti' : 'Upload'} Logo</span>
+                </button>
+                ${
+                  currentInvoice.logoImage || state.business.logoImage
+                    ? `<button class="inv-btn inv-btn-sm inv-btn-danger" id="btn-remove-logo" title="Hapus logo">${icon('trash', 14)}</button>`
+                    : ''
+                }
+              </div>
+            </div>
+
             <!-- OPSI DOKUMEN & FITUR TAMBAHAN (OPSIONAL) -->
             <div class="inv-opt-box">
               <div class="inv-opt-header">
@@ -1404,9 +1432,11 @@ HT.register('invoice-generator', {
                   <h1 class="inv-paper-h1">${i18n[opts.docType]}</h1>
                   <span class="inv-paper-num">${i18n.numLabel[opts.docType]}: ${escapeHtml(currentInvoice.invoiceNumber)}</span>
                 </div>
-                <div class="inv-paper-logo" title="${escapeHtml(state.business.name)}">
-                  ${state.business.name.slice(0, 1) || 'K'}
-                </div>
+                ${
+                  currentInvoice.logoImage || state.business.logoImage
+                    ? `<img class="inv-paper-logo-img" id="paper-logo-clickable" src="${currentInvoice.logoImage || state.business.logoImage}" alt="${escapeHtml(state.business.name)}" title="Klik untuk ganti logo">`
+                    : `<div class="inv-paper-logo" id="paper-logo-clickable" title="Klik untuk upload logo bisnis">${state.business.name.slice(0, 1) || 'K'}</div>`
+                }
               </div>
 
               <!-- Parties: Billed By vs Billed To -->
@@ -1817,6 +1847,21 @@ HT.register('invoice-generator', {
               Aset yang diunggah di sini akan otomatis menjadi gambar default saat membuat invoice baru:
             </p>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+              <!-- Default Logo -->
+              <div style="border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 8px;">
+                <span class="inv-label">Logo Bisnis / Perusahaan</span>
+                ${
+                  b.logoImage
+                    ? `
+                  <img src="${b.logoImage}" style="max-height: 50px; max-width: 120px; object-fit: contain; border: 1px solid var(--border); border-radius: 4px; background: #fff;">
+                  <button class="inv-btn inv-btn-sm inv-btn-danger" id="biz-del-logo" style="padding: 2px 6px; font-size: 0.72rem;">Hapus Logo</button>
+                `
+                    : `
+                  <input type="file" id="biz-file-logo" accept="image/*" style="display: none;">
+                  <button class="inv-btn inv-btn-sm" id="biz-btn-logo" style="font-size: 0.75rem;">${icon('upload', 14)} Upload Logo</button>
+                `
+                }
+              </div>
               <!-- Default QRIS -->
               <div style="border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 8px;">
                 <span class="inv-label">Default QRIS</span>
@@ -2182,6 +2227,45 @@ HT.register('invoice-generator', {
           };
         }
 
+        // Logo upload events
+        const btnTriggerLogo = el.querySelector('#btn-trigger-logo');
+        const fileLogo = el.querySelector('#file-logo-upload');
+        const paperLogo = el.querySelector('#paper-logo-clickable');
+
+        if (btnTriggerLogo && fileLogo) {
+          btnTriggerLogo.onclick = () => fileLogo.click();
+        }
+        if (paperLogo && fileLogo) {
+          paperLogo.onclick = () => fileLogo.click();
+        }
+        if (fileLogo) {
+          fileLogo.onchange = async () => {
+            if (fileLogo.files && fileLogo.files[0]) {
+              try {
+                const b64 = await compressImageFile(fileLogo.files[0], 400);
+                currentInvoice.logoImage = b64;
+                state.business.logoImage = b64;
+                localStorage.setItem('flowly_invoices_local', JSON.stringify(state));
+                renderApp();
+                showToast('Logo bisnis berhasil diunggah!');
+              } catch (_) {
+                alert('Gagal memproses gambar logo.');
+              }
+            }
+          };
+        }
+
+        const btnRemoveLogo = el.querySelector('#btn-remove-logo');
+        if (btnRemoveLogo) {
+          btnRemoveLogo.onclick = () => {
+            currentInvoice.logoImage = '';
+            state.business.logoImage = '';
+            localStorage.setItem('flowly_invoices_local', JSON.stringify(state));
+            renderApp();
+            showToast('Logo dihapus.');
+          };
+        }
+
         // Ganti format kombinasi penomoran
         const selFormat = el.querySelector('#sel-inv-format');
         if (selFormat) {
@@ -2533,6 +2617,35 @@ HT.register('invoice-generator', {
 
       // ================= TAB BUSINESS PROFILE EVENTS =================
       if (currentTab === 'business') {
+        // Upload default Logo Bisnis
+        const bizBtnLogo = el.querySelector('#biz-btn-logo');
+        const bizFileLogo = el.querySelector('#biz-file-logo');
+        if (bizBtnLogo && bizFileLogo) {
+          bizBtnLogo.onclick = () => bizFileLogo.click();
+          bizFileLogo.onchange = async () => {
+            if (bizFileLogo.files && bizFileLogo.files[0]) {
+              try {
+                const b64 = await compressImageFile(bizFileLogo.files[0], 400);
+                state.business.logoImage = b64;
+                currentInvoice.logoImage = b64;
+                localStorage.setItem('flowly_invoices_local', JSON.stringify(state));
+                renderApp();
+                showToast('Logo bisnis default disimpan!');
+              } catch (_) {}
+            }
+          };
+        }
+        const bizDelLogo = el.querySelector('#biz-del-logo');
+        if (bizDelLogo) {
+          bizDelLogo.onclick = () => {
+            state.business.logoImage = '';
+            currentInvoice.logoImage = '';
+            localStorage.setItem('flowly_invoices_local', JSON.stringify(state));
+            renderApp();
+            showToast('Logo dihapus.');
+          };
+        }
+
         // Upload default QRIS
         const bizBtnQRIS = el.querySelector('#biz-btn-qris');
         const bizFileQRIS = el.querySelector('#biz-file-qris');
@@ -2608,6 +2721,7 @@ HT.register('invoice-generator', {
           btnSaveBiz.onclick = async () => {
             state.business = {
               ...state.business,
+              logoImage: state.business.logoImage || '',
               name: el.querySelector('#biz-name').value.trim() || 'Flowly Tech',
               email: el.querySelector('#biz-email').value.trim(),
               phone: el.querySelector('#biz-phone').value.trim(),

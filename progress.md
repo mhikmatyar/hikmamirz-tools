@@ -1,8 +1,8 @@
 # Progress Tracking: Invoice Generator (Flowly)
 
 - **Dokumen Terkait**: [prd.md](file:///e:/PROJECT/TOOLS%20AI/prd.md), [design.md](file:///e:/PROJECT/TOOLS%20AI/design.md), [task.md](file:///e:/PROJECT/TOOLS%20AI/task.md)
-- **Terakhir Diperbarui**: 2026-11-05 15:08 WIB
-- **Status Keseluruhan**: **100% (Selesai & Terverifikasi - v1.3.2 Mobile-First Responsive Overhaul)**
+- **Terakhir Diperbarui**: 2026-11-05 15:52 WIB
+- **Status Keseluruhan**: **100% (Selesai & Terverifikasi - v1.3.3 Custom Logo Upload & Brand Management)**
 
 ---
 
@@ -22,26 +22,23 @@
 | **Fase 10** | Fitur Tambahan Fleksibel & Opsional (v1.3.0) | Selesai | 100% |
 | **Fase 11** | Penempatan Tombol Cepat Bahasa Dwibahasa (v1.3.1) | Selesai | 100% |
 | **Fase 12** | Perbaikan & Optimalisasi Responsif Mobile Menyeluruh (v1.3.2) | Selesai | 100% |
+| **Fase 13** | Fitur Upload & Penggantian Logo Bisnis Kustom (v1.3.3) | Selesai | 100% |
 
 ---
 
-## 2. Catatan Rincian Optimalisasi Responsif Mobile (v1.3.2)
+## 2. Catatan Rincian Fitur Upload Logo (v1.3.3)
 
-- [x] **Mobile View Switcher (`Form Editor` ↔ `Pratinjau Dokumen`)**:
-  - Pada layar smartphone/tablet (<= 900px), antarmuka menyediakan tab alih pandangan yang elegan di bagian atas: `[ ✏️ Form Editor ]` dan `[ 👁️ Pratinjau Dokumen ]`.
-  - Mencegah pengguna harus scroll sangat jauh ke bawah untuk memeriksa pratinjau lembar faktur.
-  - Terdapat tombol navigasi cepat di bawah form: `[ 👁️ Lihat Pratinjau Dokumen (Total) → ]` dan tombol kembali `[ ← Kembali ke Form Editor ]`.
-  - Pada layar desktop (> 900px), tampilan tetap 2 kolom berdampingan secara otomatis.
-- [x] **Top Navigation Bar Responsif**:
-  - Menu tab subnavigasi (`Buat Invoice`, `Riwayat`, `Pelanggan`, `Profil Bisnis`) didesain horizontal scrollable (`touch-action: pan-x`, tanpa scrollbar kasar) agar tidak memecah baris.
-  - Tombol aksi WhatsApp, Simpan Draft, dan PDF ditata simetris dengan ukuran sentuhan jari yang nyaman.
-- [x] **Eliminasi Masalah Horizontal Overflow (Anti-Bocor Layar)**:
-  - Tabel item pada formulir dan lembar cetak dibungkus dengan `.inv-items-table-wrapper` dan `.inv-paper-table-wrapper` berfitur scrolling mandiri.
-  - Seluruh kartu form memiliki `box-sizing: border-box` dan padding proporsional (14px - 16px).
-- [x] **Penyusunan Ulang Elemen Kertas Invoice di Layar Ponsel**:
-  - Kolom *Billed By* dan *Billed To* bertumpuk vertikal secara rapi.
-  - Bagian rekening bank dan QRIS pembayaran tersusun vertikal terpusat tanpa tumpang tindih.
-  - Stempel watermark lunas beralih ke layout flow yang proporsional sehingga tidak menimpa logo bisnis.
+- [x] **Upload & Ganti Logo di Form Editor ("Buat Invoice")**:
+  - Kartu uploader logo visual di bagian atas formulir invoice.
+  - Menampilkan thumbnail logo aktif, tombol "Upload/Ganti Logo", dan tombol hapus logo.
+- [x] **1-Click Upload dari Lembar Pratinjau Kertas Invoice**:
+  - Pengguna dapat langsung mengklik ikon/logo di sudut kanan atas lembar pratinjau invoice untuk membuka dialog file picker dan mengganti logo seketika.
+- [x] **Pengaturan Logo Default di Tab "Profil Bisnis"**:
+  - Opsi upload dan hapus logo perusahaan default di tab Profil Bisnis.
+  - Tersimpan secara persisten ke Vercel KV Cloud dan localStorage browser, sehingga setiap invoice baru otomatis menggunakan logo tersebut.
+- [x] **Dukungan Format & Cetak Presisi**:
+  - Kompresi canvas otomatis mempertahankan ketajaman gambar tanpa memperberat ukuran penyimpanan.
+  - Tampil proporsional di layar maupun saat dicetak/diunduh PDF.
 
 ---
 
@@ -53,5 +50,6 @@
 - **2026-11-04 19:20**: Integrasi Vercel KV cloud sync lintas perangkat (v1.2.0).
 - **2026-11-05 14:04**: Sinkronisasi remote GitHub commit `21e5410` (Flowly generator).
 - **2026-11-05 14:30**: Implementasi rilis v1.3.0 fitur tambahan fleksibel & opsional (Termin/DP, Terbilang, QRIS, TTD Canvas & Stempel, Multi-Dokumen, 1-Click WhatsApp).
-- **2026-11-05 14:52**: Rilis v1.3.1 (penyempurnaan tombol alih bahasa dwibahasa cepat `[ 🇮🇩 ID ] [ 🇬🇧 EN ]` di Preview Bar dan formulir samping mata uang).
-- **2026-11-05 15:08**: Rilis v1.3.2 (perbaikan tampilan mobile: mobile view switcher `Form Editor` vs `Pratinjau`, subnav scrollable, padding kompak, responsive table wrappers, dan anti-overflow layout).
+- **2026-11-05 14:52**: Rilis v1.3.1 (penyempurnaan tombol alih bahasa dwibahasa cepat `[ 🇮🇩 ID ] [ 🇬🇧 EN ]` di Preview Bar dan formulir).
+- **2026-11-05 15:08**: Rilis v1.3.2 (perbaikan tampilan mobile: mobile view switcher `Form Editor` vs `Pratinjau`, subnav scrollable, responsive table wrappers).
+- **2026-11-05 15:52**: Rilis v1.3.3 (fitur upload & ganti logo bisnis kustom di 3 lokasi: kartu form editor, klik langsung pada pratinjau lembar kertas, dan tab profil bisnis default).

@@ -1462,6 +1462,51 @@
   }
 }
 
+
+/* Logo Styles */
+.inv-logo-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.inv-logo-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.inv-paper-logo-img {
+  max-width: 140px;
+  max-height: 52px;
+  object-fit: contain;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.inv-paper-logo-img:hover {
+  opacity: 0.85;
+}
+
+.inv-paper-logo {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.inv-paper-logo:hover {
+  transform: scale(1.05);
+}
+
 /* ==========================================================================
    Print Stylesheet (Hanya cetak lembar invoice A4 presisi tanpa break halaman)
    ========================================================================== */
@@ -1667,6 +1712,13 @@
     margin-top: 6px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+  }
+
+
+  .inv-paper-logo-img {
+    max-width: 130px !important;
+    max-height: 48px !important;
+    object-fit: contain !important;
   }
 
 }
