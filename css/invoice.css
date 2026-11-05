@@ -127,7 +127,7 @@
   align-items: start;
 }
 
-@media (max-width: 1080px) {
+@media screen and (max-width: 1080px) {
   .inv-workspace {
     grid-template-columns: 1fr;
   }
@@ -213,7 +213,7 @@
   gap: 14px;
 }
 
-@media (max-width: 520px) {
+@media screen and (max-width: 520px) {
   .inv-field-row {
     grid-template-columns: 1fr;
   }
@@ -797,6 +797,373 @@
   border-top: 1px solid var(--border);
 }
 
+
+/* ==========================================================================
+   Optional Features Styles (DP, Terbilang, QRIS, Signature, Document Types)
+   ========================================================================== */
+
+/* WhatsApp Button */
+.inv-btn-wa {
+  background: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #ffffff !important;
+}
+
+.inv-btn-wa:hover {
+  background: #15803d !important;
+  border-color: #15803d !important;
+}
+
+/* Options Box in Form */
+.inv-opt-box {
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inv-opt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.inv-opt-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.inv-opt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media screen and (max-width: 680px) {
+  .inv-opt-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inv-switch-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.inv-switch-item.is-active {
+  border-color: #0f766e;
+  background: rgba(15, 118, 110, 0.03);
+}
+
+.inv-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.inv-switch-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.inv-switch-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inv-switch-desc {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+.inv-switch-ctrl {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: #cbd5e1;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.inv-switch-ctrl::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.inv-switch-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.inv-switch-checkbox:checked + .inv-switch-ctrl {
+  background: #0f766e;
+}
+
+.inv-switch-checkbox:checked + .inv-switch-ctrl::after {
+  transform: translateX(16px);
+}
+
+.inv-switch-body {
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.8rem;
+  animation: invSlideDown 0.15s ease-out;
+}
+
+@keyframes invSlideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Terbilang Banner in Paper */
+.inv-paper-terbilang {
+  background: #f8fafc;
+  border-left: 3px solid #0f766e;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: #334155;
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.inv-paper-terbilang strong {
+  color: #0f766e;
+  font-style: normal;
+}
+
+/* Payment & QRIS Split */
+.inv-paper-pay-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.inv-paper-pay-left {
+  flex: 1;
+}
+
+.inv-paper-qris-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px dashed #e2e8f0;
+  padding-left: 16px;
+  min-width: 90px;
+}
+
+.inv-paper-qris-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 3px;
+}
+
+.inv-paper-qris-label {
+  font-size: 0.68rem;
+  color: #64748b;
+  margin-top: 4px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Signature & Stamp in Paper */
+.inv-paper-sig-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.inv-paper-sig-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 180px;
+  position: relative;
+}
+
+.inv-paper-sig-date {
+  font-size: 0.78rem;
+  color: #4b5563;
+  margin-bottom: 2px;
+}
+
+.inv-paper-sig-art {
+  position: relative;
+  height: 60px;
+  width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inv-paper-sig-img {
+  max-height: 55px;
+  max-width: 140px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+}
+
+.inv-paper-stamp-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  max-height: 60px;
+  max-width: 75px;
+  object-fit: contain;
+  opacity: 0.85;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.inv-paper-sig-line {
+  width: 100%;
+  border-bottom: 1.5px solid #111827;
+  margin-bottom: 4px;
+}
+
+.inv-paper-sig-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.inv-paper-sig-title {
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+/* Watermark Stamp for Paid Receipt */
+.inv-paper-paid-watermark {
+  position: absolute;
+  top: 30px;
+  right: 110px;
+  border: 3px dashed #16a34a;
+  color: #16a34a;
+  font-size: 1.35rem;
+  font-weight: 800;
+  padding: 5px 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 8px;
+  transform: rotate(-12deg);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* DP & Balance Due Summary Rows */
+.inv-summary-row.is-dp {
+  color: #0369a1;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.inv-summary-row.is-balance {
+  color: #b91c1c;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 6px;
+  margin-top: 2px;
+}
+
+/* Interactive Signature Pad Canvas */
+.inv-sig-pad-canvas {
+  width: 100%;
+  height: 120px;
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  cursor: crosshair;
+  touch-action: none;
+  display: block;
+}
+
+
+/* Language Switcher Pills */
+.inv-lang-switch {
+  display: inline-flex;
+  align-items: center;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.inv-lang-btn {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-2);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.inv-lang-btn:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+
+.inv-lang-btn.is-active {
+  background: var(--surface);
+  color: #0f766e;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+}
+
 /* ==========================================================================
    Print Stylesheet (Hanya cetak lembar invoice A4 presisi tanpa break halaman)
    ========================================================================== */
@@ -964,5 +1331,44 @@
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
-}
 
+  .inv-paper-paid-watermark {
+    top: 20px !important;
+    right: 80px !important;
+    font-size: 1.15rem !important;
+    padding: 3px 12px !important;
+    opacity: 0.9 !important;
+  }
+
+  .inv-paper-terbilang {
+    background: transparent !important;
+    border-left: 2px solid #111827 !important;
+    padding: 3px 6px !important;
+    font-size: 0.7rem !important;
+    margin-top: 2px !important;
+  }
+
+  .inv-paper-qris-img {
+    width: 65px !important;
+    height: 65px !important;
+  }
+
+  .inv-paper-sig-art {
+    height: 48px !important;
+  }
+
+  .inv-paper-sig-img {
+    max-height: 44px !important;
+  }
+
+  .inv-paper-stamp-img {
+    max-height: 48px !important;
+  }
+
+  .inv-paper-sig-row {
+    margin-top: 6px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+}
