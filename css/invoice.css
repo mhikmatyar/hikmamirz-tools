@@ -1512,7 +1512,7 @@
    ========================================================================== */
 @page {
   size: A4 portrait;
-  margin: 10mm 14mm;
+  margin: 0;
 }
 
 @media print {
@@ -1537,7 +1537,10 @@
   .inv-preview-bar,
   .inv-modal-overlay,
   .scrim,
-  #sidebar {
+  #sidebar,
+  .inv-editor-col,
+  .inv-mobile-toggle-bar,
+  .inv-mobile-only-btn {
     display: none !important;
   }
 
@@ -1547,7 +1550,8 @@
   .view,
   .inv-container,
   .inv-workspace,
-  .inv-preview-wrapper {
+  .inv-preview-wrapper,
+  .inv-preview-wrapper.inv-mobile-hidden {
     display: block !important;
     width: 100% !important;
     margin: 0 !important;
@@ -1561,19 +1565,27 @@
     border: none !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    padding: 16mm 18mm !important; /* Margin fisik standar dokumen A4 (16mm atas/bawah, 18mm kiri/kanan) */
+    margin: 0 auto !important;
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 210mm !important;
     min-height: 0 !important;
     gap: 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
     box-sizing: border-box !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    background: #ffffff !important;
   }
 
   .inv-paper-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
     gap: 12px !important;
+    width: 100% !important;
   }
 
   .inv-paper-h1 {
@@ -1588,12 +1600,17 @@
   }
 
   .inv-paper-parties {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
     gap: 20px !important;
     padding-bottom: 10px !important;
     border-bottom: 1px solid #e5e7eb !important;
+    width: 100% !important;
   }
 
   .inv-party-col {
+    display: flex !important;
+    flex-direction: column !important;
     gap: 2px !important;
   }
 
@@ -1612,9 +1629,12 @@
   }
 
   .inv-paper-dates {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
     gap: 20px !important;
     padding-bottom: 8px !important;
     border-bottom: 1px solid #e5e7eb !important;
+    width: 100% !important;
   }
 
   .inv-date-label {
@@ -1623,6 +1643,20 @@
 
   .inv-date-val {
     font-size: 0.82rem !important;
+  }
+
+  .inv-paper-table-wrapper {
+    overflow: visible !important;
+    width: 100% !important;
+    display: block !important;
+    margin: 0 !important;
+  }
+
+  .inv-paper-table {
+    width: 100% !important;
+    min-width: 100% !important;
+    table-layout: auto !important;
+    border-collapse: collapse !important;
   }
 
   .inv-paper-table th {
@@ -1641,13 +1675,16 @@
   }
 
   .inv-paper-summary {
+    display: flex !important;
+    justify-content: flex-end !important;
     margin-top: 4px !important;
+    width: 100% !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
   .inv-summary-table {
-    width: 230px !important;
+    width: 240px !important;
     gap: 4px !important;
     font-size: 0.78rem !important;
   }
@@ -1658,6 +1695,25 @@
     margin-top: 2px !important;
   }
 
+  .inv-paper-pay-container {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 20px !important;
+  }
+
+  .inv-paper-qris-col {
+    display: flex !important;
+    border-left: 1px dashed #e5e7eb !important;
+    border-top: none !important;
+    padding-left: 14px !important;
+    padding-top: 0 !important;
+    width: auto !important;
+    align-items: center !important;
+  }
+
   .inv-paper-notes {
     padding: 8px 10px !important;
     font-size: 0.73rem !important;
@@ -1665,6 +1721,8 @@
     border-radius: 6px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .inv-paper-footer {
@@ -1673,14 +1731,17 @@
     font-size: 0.68rem !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    width: 100% !important;
   }
 
   .inv-paper-paid-watermark {
-    top: 20px !important;
+    position: absolute !important;
+    top: 24px !important;
     right: 80px !important;
     font-size: 1.15rem !important;
     padding: 3px 12px !important;
     opacity: 0.9 !important;
+    transform: rotate(-12deg) !important;
   }
 
   .inv-paper-terbilang {
@@ -1709,16 +1770,16 @@
   }
 
   .inv-paper-sig-row {
+    display: flex !important;
+    justify-content: flex-end !important;
     margin-top: 6px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
-
 
   .inv-paper-logo-img {
     max-width: 130px !important;
     max-height: 48px !important;
     object-fit: contain !important;
   }
-
 }
