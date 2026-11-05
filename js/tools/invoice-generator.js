@@ -23,6 +23,7 @@ HT.register('invoice-generator', {
 
     // State aplikasi
     let currentTab = 'create'; // 'create' | 'history' | 'clients' | 'business'
+    let mobileActiveView = 'form'; // 'form' | 'preview'
     let storageStatus = 'local'; // 'vercel_kv' | 'local_file' | 'browser'
     let isSaving = false;
 
@@ -979,8 +980,17 @@ HT.register('invoice-generator', {
 
       return `
         <div class="inv-workspace">
+          <!-- Mobile View Toggle Switcher (Hanya tampil di layar kecil/mobile <= 900px) -->
+          <div class="inv-mobile-toggle-bar">
+            <button class="inv-mobile-tab-btn ${mobileActiveView === 'form' ? 'is-active' : ''}" data-view="form">
+              ${icon('fileText', 15)} <span>Form Editor</span>
+            </button>
+            <button class="inv-mobile-tab-btn ${mobileActiveView === 'preview' ? 'is-active' : ''}" data-view="preview">
+              ${icon('eye', 15)} <span>Pratinjau (${formatMoney(totals.grandTotal, currentInvoice.currency)})</span>
+            </button>
+          </div>
           <!-- KOLOM KIRI: FORM DETAIL INVOICE -->
-          <div class="inv-card">
+          <div class="inv-card ${mobileActiveView === 'preview' ? 'inv-mobile-hidden' : ''}">
             <div class="inv-card-head">
               <h2 class="inv-card-title">${icon('fileText', 18)} Detail Dokumen</h2>
               <div class="inv-pill-tabs">
@@ -1277,7 +1287,7 @@ HT.register('invoice-generator', {
               </div>
 
               <!-- Items Table -->
-              <table class="inv-items-table">
+              <div class="inv-items-table-wrapper"><table class="inv-items-table">
                 <thead>
                   <tr>
                     <th style="width: 45%;">${i18n.itemDesc}</th>
@@ -1308,7 +1318,7 @@ HT.register('invoice-generator', {
                     )
                     .join('')}
                 </tbody>
-              </table>
+              </table></div>
 
               <button class="inv-add-item-btn" id="btn-add-item">
                 ${icon('upload', 16)} <span>+ Tambah Baris Layanan</span>
@@ -1331,11 +1341,16 @@ HT.register('invoice-generator', {
                 <span class="inv-label">${i18n.paymentNotes}</span>
                 <textarea class="inv-textarea" id="inp-notes" rows="3">${escapeHtml(currentInvoice.notes || '')}</textarea>
               </label>
+
+              <!-- Tombol Cepat ke Pratinjau untuk Pengguna Mobile -->
+              <button class="inv-btn inv-btn-primary inv-mobile-only-btn" id="btn-jump-to-preview" style="margin-top: 12px; width: 100%; justify-content: center; padding: 11px;">
+                ${icon('eye', 16)} <span>Lihat Pratinjau Dokumen (${formatMoney(totals.grandTotal, currentInvoice.currency)}) &rarr;</span>
+              </button>
             </div>
           </div>
 
           <!-- KOLOM KANAN: PREVIEW DOKUMEN INVOICE (STICKY) -->
-          <div class="inv-preview-wrapper">
+          <div class="inv-preview-wrapper ${mobileActiveView === 'form' ? 'inv-mobile-hidden' : ''}">
             <div class="inv-preview-bar">
               <div class="inv-preview-title">
                 ${icon('eye', 18)} <span>Preview</span>
@@ -1367,6 +1382,11 @@ HT.register('invoice-generator', {
                   ${icon('download', 14)} <span>PDF / Cetak</span>
                 </button>
               </div>
+
+              <!-- Tombol Kembali ke Form untuk Pengguna Mobile -->
+              <button class="inv-btn inv-btn-sm inv-mobile-only-btn" id="btn-back-to-form" style="width: 100%; justify-content: center; margin-top: 6px;">
+                <span>&larr; Kembali ke Form Editor</span>
+              </button>
             </div>
 
             <!-- LEMBAR DOKUMEN (KERTAS A4) -->
@@ -1420,7 +1440,7 @@ HT.register('invoice-generator', {
               </div>
 
               <!-- Items Table -->
-              <table class="inv-paper-table">
+              <div class="inv-paper-table-wrapper"><table class="inv-paper-table">
                 <thead>
                   <tr>
                     <th class="t-center" style="width: 8%;">#</th>
@@ -1445,8 +1465,7 @@ HT.register('invoice-generator', {
                     `;
                     })
                     .join('')}
-                </tbody>
-              </table>
+                </tbody></table></div>
 
               <!-- Totals Calculation -->
               <div class="inv-paper-summary">
@@ -2119,6 +2138,32 @@ HT.register('invoice-generator', {
         const btnShareWA = el.querySelector('#btn-share-wa');
         if (btnShareWA) {
           btnShareWA.onclick = () => sendWhatsAppInvoice(currentInvoice);
+        }
+
+        // Mobile View Toggle Events
+        el.querySelectorAll('.inv-mobile-tab-btn').forEach((btn) => {
+          btn.onclick = () => {
+            mobileActiveView = btn.dataset.view;
+            renderApp();
+          };
+        });
+
+        const btnJumpPreview = el.querySelector('#btn-jump-to-preview');
+        if (btnJumpPreview) {
+          btnJumpPreview.onclick = () => {
+            mobileActiveView = 'preview';
+            renderApp();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          };
+        }
+
+        const btnBackForm = el.querySelector('#btn-back-to-form');
+        if (btnBackForm) {
+          btnBackForm.onclick = () => {
+            mobileActiveView = 'form';
+            renderApp();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          };
         }
 
         // Regenerate invoice number

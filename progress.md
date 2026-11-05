@@ -1,8 +1,8 @@
 # Progress Tracking: Invoice Generator (Flowly)
 
 - **Dokumen Terkait**: [prd.md](file:///e:/PROJECT/TOOLS%20AI/prd.md), [design.md](file:///e:/PROJECT/TOOLS%20AI/design.md), [task.md](file:///e:/PROJECT/TOOLS%20AI/task.md)
-- **Terakhir Diperbarui**: 2026-11-05 14:52 WIB
-- **Status Keseluruhan**: **100% (Selesai & Terverifikasi - v1.3.1 Quick Bilingual Switcher)**
+- **Terakhir Diperbarui**: 2026-11-05 15:08 WIB
+- **Status Keseluruhan**: **100% (Selesai & Terverifikasi - v1.3.2 Mobile-First Responsive Overhaul)**
 
 ---
 
@@ -21,30 +21,27 @@
 | **Fase 9** | Vercel Cloud Sync & Sinkronisasi Lintas Perangkat (v1.2.0) | Selesai | 100% |
 | **Fase 10** | Fitur Tambahan Fleksibel & Opsional (v1.3.0) | Selesai | 100% |
 | **Fase 11** | Penempatan Tombol Cepat Bahasa Dwibahasa (v1.3.1) | Selesai | 100% |
+| **Fase 12** | Perbaikan & Optimalisasi Responsif Mobile Menyeluruh (v1.3.2) | Selesai | 100% |
 
 ---
 
-## 2. Catatan Rincian Fitur Fleksibel & Opsional (v1.3.1)
+## 2. Catatan Rincian Optimalisasi Responsif Mobile (v1.3.2)
 
-- [x] **Tombol Cepat Bahasa Dokumen (1-Click Language Switcher)**:
-  - Ditempatkan langsung pada **Preview Bar** (tepat di atas kertas invoice): `[ 🇮🇩 ID ] [ 🇬🇧 EN ]`
-  - Ditempatkan berdampingan dengan seleksi **Currency (Mata Uang)** di formulir editor: `[ 🇮🇩 Indonesia ] [ 🇬🇧 English ]`
-  - Sinkron dengan dropdown opsi dokumen.
-  - Sekali klik langsung menerjemahkan:
-    - Judul Dokumen: `FAKTUR / INVOICE` ↔ `INVOICE`
-    - Kolom Pihak: `Diterbitkan Oleh / Ditujukan Kepada` ↔ `Billed By / Billed To`
-    - Kolom Tanggal: `Tanggal Terbit / Jatuh Tempo` ↔ `Date Issued / Due Date`
-    - Format Tanggal: Bahasa Indonesia (misal `5 November 2026`) ↔ Bahasa Inggris (misal `November 5, 2026`)
-    - Tabel Item: Kolom nomor urut `#`, `Layanan / Item`, `Qty`, `Harga Satuan`, `Total`
-    - Rincian Total: `Subtotal`, `Pajak`, `Diskon`, `Total Tagihan`, `Uang Muka (DP)`, `Sisa Tagihan`
-    - Teks Terbilang: Konversi kata otomatis Bahasa Indonesia ↔ English
-    - Catatan default & instruksi transfer bank
-- [x] **Pilihan Multi-Tipe Dokumen (Document Type Selector)** (`Invoice`, `Quotation`, `Receipt`).
-- [x] **Termin / Uang Muka (Down Payment / DP) & Sisa Tagihan (Balance Due) [Sakelar Opsional]**.
-- [x] **Teks Terbilang Otomatis (Amount in Words) [Sakelar Opsional]**.
-- [x] **QRIS Pembayaran [Sakelar Opsional]**.
-- [x] **Tanda Tangan & Stempel Resmi [Sakelar Opsional]** (dengan Interactive Signature Pad).
-- [x] **1-Click WhatsApp Tagihan (WA Billing)**.
+- [x] **Mobile View Switcher (`Form Editor` ↔ `Pratinjau Dokumen`)**:
+  - Pada layar smartphone/tablet (<= 900px), antarmuka menyediakan tab alih pandangan yang elegan di bagian atas: `[ ✏️ Form Editor ]` dan `[ 👁️ Pratinjau Dokumen ]`.
+  - Mencegah pengguna harus scroll sangat jauh ke bawah untuk memeriksa pratinjau lembar faktur.
+  - Terdapat tombol navigasi cepat di bawah form: `[ 👁️ Lihat Pratinjau Dokumen (Total) → ]` dan tombol kembali `[ ← Kembali ke Form Editor ]`.
+  - Pada layar desktop (> 900px), tampilan tetap 2 kolom berdampingan secara otomatis.
+- [x] **Top Navigation Bar Responsif**:
+  - Menu tab subnavigasi (`Buat Invoice`, `Riwayat`, `Pelanggan`, `Profil Bisnis`) didesain horizontal scrollable (`touch-action: pan-x`, tanpa scrollbar kasar) agar tidak memecah baris.
+  - Tombol aksi WhatsApp, Simpan Draft, dan PDF ditata simetris dengan ukuran sentuhan jari yang nyaman.
+- [x] **Eliminasi Masalah Horizontal Overflow (Anti-Bocor Layar)**:
+  - Tabel item pada formulir dan lembar cetak dibungkus dengan `.inv-items-table-wrapper` dan `.inv-paper-table-wrapper` berfitur scrolling mandiri.
+  - Seluruh kartu form memiliki `box-sizing: border-box` dan padding proporsional (14px - 16px).
+- [x] **Penyusunan Ulang Elemen Kertas Invoice di Layar Ponsel**:
+  - Kolom *Billed By* dan *Billed To* bertumpuk vertikal secara rapi.
+  - Bagian rekening bank dan QRIS pembayaran tersusun vertikal terpusat tanpa tumpang tindih.
+  - Stempel watermark lunas beralih ke layout flow yang proporsional sehingga tidak menimpa logo bisnis.
 
 ---
 
@@ -56,4 +53,5 @@
 - **2026-11-04 19:20**: Integrasi Vercel KV cloud sync lintas perangkat (v1.2.0).
 - **2026-11-05 14:04**: Sinkronisasi remote GitHub commit `21e5410` (Flowly generator).
 - **2026-11-05 14:30**: Implementasi rilis v1.3.0 fitur tambahan fleksibel & opsional (Termin/DP, Terbilang, QRIS, TTD Canvas & Stempel, Multi-Dokumen, 1-Click WhatsApp).
-- **2026-11-05 14:52**: Rilis v1.3.1 (penyempurnaan tombol alih bahasa dwibahasa cepat `[ 🇮🇩 ID ] [ 🇬🇧 EN ]` di Preview Bar dan formulir samping mata uang, kolom index `#` tabel item, penyesuaian otomatis catatan default, dan format tanggal dinamis ID/EN).
+- **2026-11-05 14:52**: Rilis v1.3.1 (penyempurnaan tombol alih bahasa dwibahasa cepat `[ 🇮🇩 ID ] [ 🇬🇧 EN ]` di Preview Bar dan formulir samping mata uang).
+- **2026-11-05 15:08**: Rilis v1.3.2 (perbaikan tampilan mobile: mobile view switcher `Form Editor` vs `Pratinjau`, subnav scrollable, padding kompak, responsive table wrappers, dan anti-overflow layout).

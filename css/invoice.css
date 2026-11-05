@@ -1164,6 +1164,304 @@
   font-weight: 700;
 }
 
+
+/* ==========================================================================
+   Comprehensive Mobile & Tablet Responsive Optimizations (<= 900px & <= 640px)
+   ========================================================================== */
+
+/* Mobile view toggle (hidden on desktop) */
+.inv-mobile-toggle-bar {
+  display: none;
+}
+
+.inv-mobile-only-btn {
+  display: none !important;
+}
+
+.inv-items-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-sm);
+}
+
+.inv-paper-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media screen and (max-width: 1080px) {
+  .inv-workspace {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .inv-preview-wrapper {
+    position: static;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  /* Top Navigation scrollable on tablet & mobile */
+  .inv-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .inv-subnav {
+    display: flex;
+    overflow-x: auto;
+    width: 100%;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+  }
+
+  .inv-subnav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .inv-subnav-btn {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .inv-top-actions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .inv-top-actions .inv-btn {
+    flex: 1;
+    min-width: 90px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  /* Mobile Editor vs Preview Tab Switcher */
+  .inv-mobile-toggle-bar {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3px;
+    gap: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+  }
+
+  .inv-mobile-tab-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-2);
+    background: transparent;
+    border: none;
+    border-radius: calc(var(--radius) - 3px);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .inv-mobile-tab-btn.is-active {
+    background: #0f766e;
+    color: #ffffff;
+    box-shadow: 0 1px 4px rgba(15, 118, 110, 0.3);
+  }
+
+  .inv-mobile-hidden {
+    display: none !important;
+  }
+
+  .inv-mobile-only-btn {
+    display: flex !important;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  /* Compact Cards */
+  .inv-card,
+  .inv-list-card {
+    padding: 16px 14px;
+    gap: 16px;
+    border-radius: var(--radius);
+  }
+
+  .inv-card-head {
+    padding-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .inv-card-title {
+    font-size: 0.95rem;
+  }
+
+  /* 1-column fields on mobile */
+  .inv-field-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Items Table in form */
+  .inv-items-table {
+    min-width: 440px;
+  }
+
+  .inv-items-table th,
+  .inv-items-table td {
+    padding: 6px 4px;
+    font-size: 0.8rem;
+  }
+
+  /* Options Box */
+  .inv-opt-box {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .inv-opt-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Preview Bar & Actions */
+  .inv-preview-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .inv-preview-title {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .inv-preview-actions {
+    display: flex;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .inv-preview-actions .inv-btn {
+    flex: 1;
+    padding: 7px 8px;
+    font-size: 0.78rem;
+    justify-content: center;
+  }
+
+  /* Paper Document Mobile Styling */
+  .inv-paper {
+    padding: 18px 14px;
+    gap: 14px;
+    border-radius: 8px;
+  }
+
+  .inv-paper-h1 {
+    font-size: 1.35rem;
+  }
+
+  .inv-paper-num {
+    font-size: 0.78rem;
+  }
+
+  .inv-paper-logo {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    border-radius: 6px;
+  }
+
+  .inv-paper-parties {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+
+  .inv-paper-dates {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding-bottom: 10px;
+  }
+
+  .inv-paper-table {
+    min-width: 360px;
+  }
+
+  .inv-paper-table th,
+  .inv-paper-table td {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+
+  .inv-paper-summary {
+    justify-content: stretch;
+  }
+
+  .inv-summary-table {
+    width: 100%;
+    font-size: 0.82rem;
+  }
+
+  .inv-paper-pay-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .inv-paper-qris-col {
+    border-left: none;
+    border-top: 1px dashed #e2e8f0;
+    padding-left: 0;
+    padding-top: 10px;
+    width: 100%;
+    align-items: center;
+  }
+
+  .inv-paper-paid-watermark {
+    position: static;
+    display: inline-block;
+    margin-bottom: 6px;
+    transform: none;
+    font-size: 1rem;
+    padding: 3px 10px;
+  }
+
+  .inv-paper-sig-row {
+    justify-content: center;
+  }
+
+  /* Modals */
+  .inv-modal {
+    padding: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* History Search Bar */
+  .inv-search-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .inv-data-table {
+    min-width: 580px;
+  }
+}
+
 /* ==========================================================================
    Print Stylesheet (Hanya cetak lembar invoice A4 presisi tanpa break halaman)
    ========================================================================== */
