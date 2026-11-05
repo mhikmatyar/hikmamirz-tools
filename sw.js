@@ -4,7 +4,7 @@
  *   atau jaringan lambat (lebih dari 3 detik).
  * - Library CDN dan font: cache-first. URL library memakai versi tetap, jadi aman disimpan lama.
  */
-const APP_CACHE = 'ht-app-v2';
+const APP_CACHE = 'ht-app-v3';
 const NETWORK_TIMEOUT = 3000;
 const LIB_CACHE = 'ht-lib-v1';
 const LIB_HOSTS = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];

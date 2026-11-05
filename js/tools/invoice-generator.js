@@ -922,13 +922,31 @@ HT.register('invoice-generator', {
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
     }
 
+    
+    function updateHeaderPill() {
+      const pill = document.getElementById('page-pill');
+      if (!pill) return;
+      if (storageStatus === 'vercel_kv') {
+        pill.className = 'pill is-cloud-active';
+        pill.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg> Cloud Vercel KV`;
+      } else {
+        pill.className = 'pill';
+        pill.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg> Diproses lokal`;
+      }
+    }
+
     // Render Utama Aplikasi
     function renderApp() {
+      updateHeaderPill();
       el.innerHTML = `
         <div class="inv-container">
           <!-- Top Bar -->
           <div class="inv-top-bar">
             <nav class="inv-subnav">
+              <div class="inv-cloud-badge ${storageStatus === 'vercel_kv' ? 'is-kv' : ''}" style="margin-right: 4px;" title="${storageStatus === 'vercel_kv' ? 'Tersambung ke Cloud Vercel KV' : 'Penyimpanan Lokal'}">
+                <span class="inv-cloud-dot"></span>
+                <span>${storageStatus === 'vercel_kv' ? 'Cloud Vercel KV' : storageStatus === 'local_file' ? 'File Lokal' : 'Browser Lokal'}</span>
+              </div>
               <button class="inv-subnav-btn ${currentTab === 'create' ? 'is-active' : ''}" data-tab="create">
                 ${icon('fileText', 16)} <span>Buat Invoice</span>
               </button>
@@ -1789,11 +1807,33 @@ HT.register('invoice-generator', {
       const b = state.business || {};
 
       return `
+        
         <div class="inv-card" style="max-width: 720px; margin: 0 auto;">
           <div class="inv-card-head">
             <h2 class="inv-card-title">${icon('sliders', 18)} Pengaturan Profil Bisnis</h2>
             <button class="inv-btn inv-btn-primary inv-btn-sm" id="btn-save-biz">Simpan Pengaturan</button>
           </div>
+
+          <!-- Status Koneksi Vercel KV Prominen di Atas -->
+          <div style="background: ${storageStatus === 'vercel_kv' ? 'rgba(16, 185, 129, 0.08)' : 'var(--field)'}; padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid ${storageStatus === 'vercel_kv' ? 'rgba(16, 185, 129, 0.35)' : 'var(--border)'}; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${storageStatus === 'vercel_kv' ? '#10b981' : '#f59e0b'}; box-shadow: 0 0 8px ${storageStatus === 'vercel_kv' ? '#10b981' : '#f59e0b'};"></span>
+                <strong style="font-size: 0.92rem; color: ${storageStatus === 'vercel_kv' ? '#10b981' : 'var(--text-1)'};">
+                  ${storageStatus === 'vercel_kv' ? 'Tersambung ke Vercel KV Cloud Store' : storageStatus === 'local_file' ? 'Menyimpan ke File Lokal' : 'Menyimpan di Browser Lokal'}
+                </strong>
+              </div>
+              <span style="font-size: 0.75rem; color: ${storageStatus === 'vercel_kv' ? '#10b981' : 'var(--text-3)'}; font-family: monospace; font-weight: 600;">
+                ${storageStatus === 'vercel_kv' ? '🟢 SINKRONISASI AKTIF' : 'OFFLINE'}
+              </span>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--text-2); margin: 6px 0 0 0;">
+              ${storageStatus === 'vercel_kv' 
+                ? 'Semua faktur, profil bisnis, dan data pelanggan otomatis tersimpan di cloud Vercel (Upstash Redis) lintas perangkat (laptop & HP).' 
+                : 'Data saat ini tersimpan di browser perangkat ini.'}
+            </p>
+          </div>
+
 
           <div class="inv-section">
             <h3 class="inv-section-title">Informasi Usaha</h3>
@@ -1912,21 +1952,7 @@ HT.register('invoice-generator', {
             </div>
           </div>
 
-          <div class="inv-section" style="background: var(--field); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-            <h3 class="inv-section-title" style="margin-bottom: 6px;">Status Penyimpanan Cloud Vercel</h3>
-            <p style="font-size: 0.85rem; color: var(--text-2); margin: 0 0 10px 0;">
-              Status saat ini: <strong>${
-                storageStatus === 'vercel_kv'
-                  ? 'Tersambung ke Vercel KV Cloud Store'
-                  : storageStatus === 'local_file'
-                  ? 'Menyimpan ke File Lokal (kantor/invoices-data.json)'
-                  : 'Menyimpan di Browser Lokal (LocalStorage)'
-              }</strong>.
-            </p>
-            <p style="font-size: 0.8rem; color: var(--text-3); margin: 0;">
-              Tip untuk Vercel: Tambahkan <strong>Vercel KV</strong> dari dashboard Vercel &rarr; Storage, maka riwayat invoice otomatis tersimpan secara online tanpa biaya.
-            </p>
-          </div>
+          
         </div>
       `;
     }
@@ -2888,6 +2914,11 @@ HT.register('invoice-generator', {
 
     // Cleanup saat ganti tool
     return () => {
+      const pill = document.getElementById('page-pill');
+      if (pill) {
+        pill.className = 'pill';
+        pill.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg> Diproses lokal`;
+      }
       closeClientModal();
       if (isSigPadOpen) {
         const container = document.getElementById('inv-sig-modal-container');
