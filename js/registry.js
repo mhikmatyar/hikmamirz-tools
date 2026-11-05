@@ -5,7 +5,7 @@
  * File tool memanggil HT.register('<id>', { mount(el) { ...; return cleanup } }).
  */
 window.HT = {
-  groups: ['Image Lab', 'Doc Lab', 'Content Lab'],
+  groups: ['Image Lab', 'Doc Lab', 'Content Lab', 'Business Lab'],
 
   // name: nama produk di sidebar; tagline: fungsi singkatnya (tampil di breadcrumb dan ikut dicari).
   tools: [
@@ -44,6 +44,15 @@ window.HT = {
       icon: 'chart',
       description: 'Dashboard performa post Instagram yang diambil langsung dari akun kamu dan diperbarui tiap 15 menit. Lihat views per post, post yang menonjol, serta hari dan jam unggah terbaik.',
       scripts: ['js/tools/post-analytics.js'],
+    },
+    {
+      id: 'invoice-generator',
+      name: 'Flowly',
+      tagline: 'Invoice Generator',
+      group: 'Business Lab',
+      icon: 'fileText',
+      description: 'Buat invoice profesional dengan live preview, multi-currency (MYR, IDR, USD, SGD), simpan riwayat ke Vercel KV / lokal, cetak PDF, dan manajemen pelanggan.',
+      scripts: ['js/tools/invoice-generator.js'],
     },
   ],
 
